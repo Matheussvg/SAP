@@ -1,7 +1,7 @@
 <title>Mery’s Toys Conferência de Pedidos</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap">
 <style>
-  /* Layout: login → (admin) ME22N + Conferência + Resultados | (conferente) só Conferência. Dados compartilhados entre todos que abrem a página */
+  /* Layout: login por papel → master (Fluxo, Conferências, ME22N, Resultados) | gerente de área (Minha área, ME22N, Resultados) | colaborador (Conferência) */
   :root{--green:#173c32;--green2:#245849;--mint:#eaf2ed;--mint2:#f3f7f4;--red:#b6504b;--gold:#bd9351;--gold2:#8a6a2f;--cream:#faf6ec;--ink:#24332e;--muted:#6f7c75;--line:#cfd8d1;--line2:#e2e8e3;--paper:#fff;--bg:#f6f7f4;--ok:#3b8b62;--white:#fff;
     --display:'Manrope',system-ui,sans-serif;--body:'DM Sans',Tahoma,system-ui,sans-serif;color-scheme:light}
   *{box-sizing:border-box}
@@ -17,7 +17,7 @@
 
   /* ===== Login ===== */
   .login{display:grid;place-items:center;padding:24px 16px;overflow:auto;background:radial-gradient(circle at 20% 10%,#245849 0,#173c32 45%,#0f2a22 100%)}
-  .login-card{width:min(420px,100%);background:var(--paper);border-radius:16px;overflow:hidden;box-shadow:0 30px 80px #0008}
+  .login-card{width:min(440px,100%);background:var(--paper);border-radius:16px;overflow:hidden;box-shadow:0 30px 80px #0008}
   .login-top{background:var(--green);color:var(--white);padding:22px 24px 18px}
   .login-top .brand{font-size:20px}
   .login-top p{margin:6px 0 0;color:#c0d0c7;font-size:12.5px}
@@ -27,25 +27,28 @@
   .ltab.active{background:var(--green);border-color:var(--green);color:var(--white)}
   .login form{padding:16px 24px 22px;display:flex;flex-direction:column;gap:10px}
   .login label{font-weight:600;color:#4f5e57;display:flex;flex-direction:column;gap:5px}
-  .login input{height:40px;border:1px solid #c8d2cb;border-radius:8px;padding:0 12px;outline:0;font-size:14px}
-  .login input:focus{border-color:#5e8a77;box-shadow:0 0 0 3px #39735f22}
+  .login input,.login select{height:40px;border:1px solid #c8d2cb;border-radius:8px;padding:0 12px;outline:0;font-size:14px;background:var(--paper)}
+  .login input:focus,.login select:focus{border-color:#5e8a77;box-shadow:0 0 0 3px #39735f22}
   .login .btn.primary{height:42px;justify-content:center;font-size:14px;margin-top:4px}
-  .login .note{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+  .login .note{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
+  .login .note b{color:#3e5147}
   .login .err{color:var(--red);font-size:12.5px;margin:0}
   .conn{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);padding:0 24px 18px}
   .conn i{width:8px;height:8px;border-radius:50%;background:var(--gold)}
   .conn.on i{background:var(--ok)}
   .conn.off i{background:var(--red)}
 
-  /* ===== Barra superior (após login) ===== */
+  /* ===== Barra superior ===== */
   .switch{flex:none;display:flex;align-items:center;gap:8px;padding:8px 16px;background:#0f2a22;color:#c9d8d0;flex-wrap:wrap}
   .switch .lbl{font-size:11px;text-transform:uppercase;letter-spacing:1.1px;font-weight:700;color:#e2c784;margin-right:4px}
   .switch .grow{flex:1}
+  #tabs{display:flex;gap:8px;flex-wrap:wrap}
   .sw{border:1px solid #ffffff2a;background:transparent;color:#dfe9e3;border-radius:7px;height:30px;padding:0 12px;display:inline-flex;align-items:center;gap:7px;font-weight:600}
   .sw:hover{background:#ffffff12}
   .sw.active{background:var(--paper);color:var(--green);border-color:var(--paper)}
-  .who{font-size:12px;display:flex;align-items:center;gap:8px}
+  .who{font-size:12px;display:flex;align-items:center;gap:6px}
   .who b{color:var(--white)}
+  .role-tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;background:#e2c78426;color:#e2c784;border-radius:999px;padding:2px 8px}
   .pill{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;background:#ffffff18;display:inline-flex;align-items:center;gap:5px}
   .pill i{width:7px;height:7px;border-radius:50%;background:var(--gold)}
   .pill.on i{background:#6fcf97}
@@ -109,6 +112,7 @@
   .mylist button.cur{background:var(--mint)}
   .mylist .t{font-weight:700;color:#20352d}
   .mylist .s{grid-column:1/3;color:var(--muted);font-size:12px}
+  .mylist .chip{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
   .work{overflow:auto;padding:12px 16px 20px;min-height:0;display:flex;flex-direction:column;gap:10px}
   .work>*{flex:none}
@@ -116,6 +120,8 @@
   .adj-banner b{color:var(--red)}
   .adj-banner.ok{background:#e8f3eb;border-color:#cfe5d6;border-left-color:var(--ok);color:#28553f}
   .adj-banner.ok b{color:var(--ok)}
+  .adj-banner.info{background:#f7f0df;border-color:#f0e2bf;border-left-color:var(--gold);color:#6b5323}
+  .adj-banner.info b{color:var(--gold2)}
   .docline{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;background:var(--paper);border:1px solid var(--line2);border-radius:10px;padding:9px 12px}
   .docline label{color:#55645d;font-weight:600}
   .docline .grow{flex:1}
@@ -221,13 +227,28 @@
   .doc-obs p{margin:2px 0 0;white-space:pre-wrap}
   .doc-empty{padding:14px 16px;color:var(--muted)}
 
+  /* ===== Trajeto do pedido ===== */
+  .trail{list-style:none;margin:16px 16px 0;padding:12px 14px;background:var(--paper);border:1px solid var(--line2);border-radius:12px;display:flex;gap:6px;overflow-x:auto}
+  .trail li{flex:1 0 128px;display:flex;flex-direction:column;gap:3px;padding:8px 10px;border-radius:8px;background:#f3f6f3;border-top:3px solid #c9d3cc;min-width:128px}
+  .trail b{font:700 12px var(--display);color:#20352d}
+  .trail span{font-size:11.5px;color:var(--muted);line-height:1.4}
+  .trail li.ok{background:#eef6f0;border-top-color:var(--ok)}
+  .trail li.ok span{color:#28553f}
+  .trail li.rej{background:#fbefed;border-top-color:var(--red)}
+  .trail li.rej span{color:#7d3532}
+  .trail li.now{background:#f7f0df;border-top-color:var(--gold);box-shadow:0 0 0 2px #bd935155}
+  .trail li.now span{color:#6b5323;font-weight:600}
+
   /* ===== Conferência ===== */
   .check{display:flex;flex-direction:column}
-  .check-body{flex:1;min-height:0;display:grid;grid-template-columns:300px minmax(0,1fr);background:var(--bg)}
+  .check-body{flex:1;min-height:0;display:grid;grid-template-columns:310px minmax(0,1fr);background:var(--bg)}
   .ck-side{border-right:1px solid var(--line);background:var(--paper);overflow:auto;min-height:0}
   .ck-head{padding:14px 16px;background:var(--green);color:var(--white)}
   .ck-head h2{margin:0;font:800 16px var(--display)}
   .ck-head p{margin:2px 0 0;color:#c0d0c7;font-size:12px}
+  .ck-filter{display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid var(--line2);flex-wrap:wrap}
+  .ck-filter button{border:1px solid var(--line2);background:var(--mint2);border-radius:999px;padding:3px 10px;font-size:12px;color:#4b5a53}
+  .ck-filter button.active{background:var(--green);border-color:var(--green);color:var(--white)}
   .inbox{list-style:none;margin:0;padding:0}
   .inbox li button{width:100%;text-align:left;border:0;border-bottom:1px solid var(--line2);background:var(--paper);padding:12px 16px;display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:3px 10px;align-items:start}
   .inbox li button:hover{background:#fbfaf3}
@@ -240,6 +261,7 @@
   .chip{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;justify-self:start}
   .inbox .chip{grid-column:2/4}
   .chip.pending,.chip.sent{color:#815f22;background:#f7f0df}
+  .chip.mine{color:var(--white);background:var(--gold2)}
   .chip.done{color:#32624b;background:#e8f3eb}
   .chip.adjust{color:var(--red);background:#fbefed}
   .chip.new{color:#4b5a53;background:#eef3ef}
@@ -252,6 +274,7 @@
   .result{margin:0 16px;padding:12px 14px;border-radius:10px;line-height:1.5}
   .result.hit{background:#e8f3eb;border:1px solid #cfe5d6;color:#28553f}
   .result.miss{background:#fbefed;border:1px solid #f0d9d6;color:#7d3532}
+  .result.neutral{background:var(--paper);border:1px solid var(--line2);color:var(--ink)}
   .result b{font:800 14px var(--display)}
   .result p{margin:3px 0 0}
   .result ul{margin:6px 0 0;padding-left:18px}
@@ -260,21 +283,50 @@
   .ck-done{display:flex;align-items:center;gap:8px;font-weight:700;text-align:center;overflow-wrap:anywhere}
   .ck-done.done{color:#32624b}
   .ck-done.adjust{color:var(--red)}
+  .ck-done.wait{color:#6b5323}
 
-  /* ===== Resultados (admin) ===== */
+  /* ===== Fluxo de áreas (master) ===== */
+  .flowv{display:flex;flex-direction:column;overflow:hidden}
+  .flow-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px 16px 0}
+  .flow-head h2{margin:0;font:800 18px var(--display);color:#20352d}
+  .lead{margin:3px 0 0;color:var(--muted)}
+  .kpis{display:flex;gap:8px;flex-wrap:wrap}
+  .kpi{background:var(--paper);border:1px solid var(--line2);border-radius:10px;padding:8px 14px;min-width:110px}
+  .kpi b{display:block;font:800 20px var(--display);font-variant-numeric:tabular-nums}
+  .kpi span{color:var(--muted);font-size:11.5px}
+  .kpi.wait b{color:var(--gold2)}.kpi.ok b{color:var(--ok)}.kpi.rej b{color:var(--red)}
+  .board{flex:1;min-height:0;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,1fr);gap:10px;padding:14px 16px 16px;overflow:auto}
+  .lane{background:var(--paper);border:1px solid var(--line2);border-radius:12px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+  .lane-head{padding:10px 12px;border-bottom:1px solid var(--line2);background:linear-gradient(#f7faf7,#eef3ef)}
+  .lane-head b{font:800 14px var(--display);color:#20352d;display:flex;justify-content:space-between;gap:8px}
+  .lane-head b em{font-style:normal;background:var(--green);color:var(--white);border-radius:999px;font-size:11px;padding:1px 8px}
+  .lane-head span{display:block;color:var(--muted);font-size:11.5px}
+  .lane.done .lane-head{background:#e8f3eb}.lane.rej .lane-head{background:#fbefed}
+  .lane-body{padding:8px;display:flex;flex-direction:column;gap:6px;overflow:auto;flex:1}
+  .substep{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;color:var(--gold2);margin:4px 2px 0}
+  .fcard{border:1px solid var(--line2);border-left:3px solid var(--gold);background:var(--paper);border-radius:8px;padding:8px 10px;text-align:left;display:flex;flex-direction:column;gap:2px}
+  .fcard:hover{background:#fbfaf3;border-color:#d9cfb8}
+  .fcard b{font-weight:700;color:#20352d}
+  .fcard span{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fcard em{font-style:normal;font-size:11.5px;color:#6b5323}
+  .fcard.ok{border-left-color:var(--ok)}.fcard.ok em{color:#28553f}
+  .fcard.rej{border-left-color:var(--red)}.fcard.rej em{color:#7d3532}
+  .lane-empty{color:#a3ada8;font-size:12px;text-align:center;padding:12px 4px}
+
+  /* ===== Resultados ===== */
   .results{overflow:auto;padding:16px}
   .results h2{margin:0 0 4px;font:800 18px var(--display);color:#20352d}
-  .results .lead{margin:0 0 14px;color:var(--muted)}
+  .results .lead{margin:0 0 14px}
   .people{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-  .person{background:var(--paper);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;min-width:170px}
+  .person{background:var(--paper);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;min-width:190px}
   .person b{display:block;font:700 14px var(--display)}
   .person span{color:var(--muted);font-size:12px}
   .person .rate{font:800 20px var(--display);color:var(--green);font-variant-numeric:tabular-nums}
   .res-wrap{overflow-x:auto;background:var(--paper);border:1px solid var(--line2);border-radius:10px}
-  .res{border-collapse:collapse;width:100%;min-width:820px}
+  .res{border-collapse:collapse;width:100%;min-width:900px}
   .res th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:9px 10px;border-bottom:2px solid var(--green);background:#f8faf8}
   .res td{padding:9px 10px;border-bottom:1px solid var(--line2);vertical-align:top}
-  .res td.reason{max-width:280px;white-space:pre-wrap;overflow-wrap:anywhere}
+  .res td.reason{max-width:260px;white-space:pre-wrap;overflow-wrap:anywhere}
   .ok-t{color:var(--ok);font-weight:700}
   .bad-t{color:var(--red);font-weight:700}
 
@@ -310,7 +362,7 @@
     .check-body{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
     .ck-side{border-right:0;border-bottom:1px solid var(--line);max-height:34vh}
     .menubar .m:not(:first-child){display:none}
-    .titlebar .eyebrow,.systoolbar .hint,.switch .lbl{display:none}
+    .titlebar .eyebrow,.systoolbar .hint,.switch .lbl,.pill{display:none}
     .titlebar h1{font-size:15px}
     .frow{grid-template-columns:1fr;gap:3px;padding:3px 0}
     #supplier{width:auto;flex:1}
@@ -318,6 +370,7 @@
     .actions .btn.primary{width:100%;justify-content:center;order:-1}
     .sys-info>span:not(:first-child){display:none}
     .ck-bar .btn{flex:1;justify-content:center}
+    .board{grid-auto-columns:minmax(220px,85%)}
   }
 </style>
 
@@ -336,6 +389,7 @@
   <symbol id="i-bell" viewBox="0 0 16 16"><path d="M4 11V7a4 4 0 018 0v4l1.5 1.5h-11zM6.5 14h3"/></symbol>
   <symbol id="i-cart" viewBox="0 0 16 16"><path d="M1.5 2.5h2l1.6 7.5h7.4l1.5-5.5H4.3M6 13.5h.01M12 13.5h.01"/></symbol>
   <symbol id="i-chart" viewBox="0 0 16 16"><path d="M2.5 13.5h11M4.5 11V7.5M8 11V4M11.5 11V9"/></symbol>
+  <symbol id="i-flow" viewBox="0 0 16 16"><path d="M1.5 3.5h4v3h-4zM10.5 3.5h4v3h-4zM6 9.5h4v3H6zM5.5 5h5M12.5 6.5V8H8v1.5"/></symbol>
   <symbol id="i-out" viewBox="0 0 16 16"><path d="M6.5 2.5h-4v11h4M10 5l3 3-3 3M13 8H6"/></symbol>
 </svg>
 
@@ -343,42 +397,51 @@
   <!-- ===== Login ===== -->
   <section class="view login" id="viewLogin">
     <div class="login-card">
-      <div class="login-top"><div class="brand"><i>✦</i>Mery’s <span>Toys</span></div><p>Conferência de pedidos · Temporada de boas ideias</p></div>
+      <div class="login-top"><div class="brand"><i>✦</i>Mery’s <span>Toys</span></div><p>Pedidos e conferência por área · Temporada de boas ideias</p></div>
       <div class="ribbon" aria-hidden="true"></div>
       <div class="login-tabs" role="tablist">
-        <button class="ltab active" data-ltab="formAdmin">Administrador</button>
-        <button class="ltab" data-ltab="formChecker">Conferente</button>
+        <button class="ltab active" data-ltab="formAdmin">Gerente</button>
+        <button class="ltab" data-ltab="formChecker">Colaborador</button>
       </div>
       <form id="formAdmin" autocomplete="off">
-        <label>Usuário<input id="admUser" autocomplete="off"></label>
+        <label>Usuário<input id="admUser" autocomplete="off" placeholder="adm ou adm_área"></label>
         <label>Senha<input id="admPass" type="password" autocomplete="off"></label>
-        <p class="err" id="admErr" hidden>Usuário ou senha inválidos.</p>
+        <label id="masterWrap" hidden>Quem é você?<select id="masterName"></select></label>
+        <p class="err" id="admErr" hidden></p>
         <button class="btn primary" type="submit">Entrar</button>
-        <p class="note">Acesso completo: criar pedidos na ME22N, acompanhar a conferência e ver os resultados.</p>
+        <p class="note">Gerente master: <b>adm</b>. Gerente de área: <b>adm_ti</b>, <b>adm_producao</b>, <b>adm_pcp</b>, <b>adm_comunicacao</b> ou <b>adm_logistica</b>.</p>
       </form>
       <form id="formChecker" autocomplete="off" hidden>
-        <label>Seu nome<input id="checkerName" placeholder="Ex.: Ana Souza" maxlength="40"></label>
-        <p class="err" id="nameErr" hidden>Informe seu nome (pelo menos 2 letras).</p>
+        <label>Sua área<select id="checkerArea"></select></label>
+        <label>Seu nome<input id="checkerName" placeholder="Nome e sobrenome" maxlength="60"></label>
+        <p class="err" id="nameErr" hidden></p>
         <button class="btn primary" type="submit">Entrar na conferência</button>
-        <p class="note">Seu nome fica registrado em cada pedido que você confirmar ou rejeitar.</p>
+        <p class="note">Seu nome precisa estar na equipe da área escolhida. Ele fica registrado em cada pedido que você aprovar ou rejeitar.</p>
       </form>
-      <div class="conn" id="connLogin"><i></i><span>Conectando à base compartilhada…</span></div>
+      <div class="conn" id="connLogin"><i></i><span>Conectando…</span></div>
     </div>
   </section>
 
   <!-- ===== Barra superior ===== -->
   <div class="switch" id="topbar" hidden>
     <span class="lbl">✦ Mery’s Toys</span>
-    <button class="sw" id="swBuyer" data-view="viewBuyer"><svg class="ico"><use href="#i-cart"/></svg>ME22N · Pedidos <span class="badge" id="buyerBadge" hidden>0</span></button>
-    <button class="sw" id="swCheck" data-view="viewCheck"><svg class="ico"><use href="#i-bell"/></svg>Conferência <span class="badge" id="badge" hidden>0</span></button>
-    <button class="sw" id="swResults" data-view="viewResults"><svg class="ico"><use href="#i-chart"/></svg>Resultados</button>
+    <div id="tabs"></div>
     <span class="grow"></span>
     <span class="pill" id="connPill"><i></i><span>Conectando…</span></span>
-    <span class="who">Logado como <b id="whoName"></b></span>
+    <span class="who"><span class="role-tag" id="whoRole"></span><b id="whoName"></b></span>
     <button class="sw out" id="logout"><svg class="ico"><use href="#i-out"/></svg>Sair</button>
   </div>
 
-  <!-- ===== ME22N (admin) ===== -->
+  <!-- ===== Fluxo de áreas (master) ===== -->
+  <section class="view flowv" id="viewFlow" hidden>
+    <div class="flow-head">
+      <div><h2>Fluxo de áreas</h2><p class="lead">Onde cada pedido está agora. Clique num pedido para ver a NF, o pedido e o trajeto.</p></div>
+      <div class="kpis" id="kpis"></div>
+    </div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <!-- ===== ME22N (gerentes) ===== -->
   <div class="view shell" id="viewBuyer" hidden>
     <nav class="menubar" aria-label="Menu">
       <div class="m">Pedido</div><div class="m">Processar</div><div class="m">Ir para</div><div class="m">Ajuda</div>
@@ -387,10 +450,10 @@
     </nav>
     <div class="systoolbar">
       <div class="cmd"><input id="cmdField" placeholder="/nME22N" aria-label="Transação"><button id="cmdOk" title="Executar (Enter)"><svg class="ico"><use href="#i-run"/></svg>Executar</button></div>
-      <span class="hint">Crie o pedido e clique em <b>Enviar pedido</b> · todos os conferentes recebem · o retorno chega na caixa de mensagens</span>
+      <span class="hint" id="flowHint"></span>
     </div>
     <div class="titlebar">
-      <h1><em>Modificar</em> Pedido standard <span id="titleOrder"></span></h1>
+      <h1><em>Modificar</em> Pedido standard <span id="titleOrder"></span> · <span id="titleBy"></span></h1>
       <div class="eyebrow">✦ Temporada de boas ideias</div>
     </div>
     <div class="actions">
@@ -405,8 +468,8 @@
       <aside class="side" aria-label="Caixa de mensagens e pedidos">
         <div class="side-head"><h2>Caixa de mensagens</h2><span class="badge" id="msgBadge" hidden>0</span></div>
         <div class="msgs" id="msgList"></div>
-        <div class="empty" id="msgEmpty"><b>Nenhuma mensagem</b>Quando um conferente confirmar ou rejeitar um pedido, o retorno chega aqui com o nome dele e o motivo.</div>
-        <div class="side-head"><h2>Pedidos</h2></div>
+        <div class="empty" id="msgEmpty"><b>Nenhuma mensagem</b>Quando um pedido seu for concluído ou rejeitado em alguma área, o retorno chega aqui com o nome de quem decidiu e o motivo.</div>
+        <div class="side-head"><h2 id="ordersTitle">Pedidos</h2></div>
         <ul class="mylist" id="myOrders"></ul>
       </aside>
       <main class="work">
@@ -485,9 +548,10 @@
   <section class="view check" id="viewCheck" hidden>
     <div class="check-body">
       <aside class="ck-side">
-        <div class="ck-head"><h2>Pedidos para conferir</h2><p id="ckWho"></p></div>
+        <div class="ck-head"><h2 id="ckTitle">Pedidos para conferir</h2><p id="ckWho"></p></div>
+        <div class="ck-filter" id="ckFilter"></div>
         <ul class="inbox" id="inbox"></ul>
-        <div class="empty" id="inboxEmpty"><b>Nenhum pedido recebido</b>Quando um pedido for enviado pela ME22N, ele aparece aqui para todos os conferentes.</div>
+        <div class="empty" id="inboxEmpty"></div>
       </aside>
       <div class="ck-main" id="ckMain">
         <div class="empty"><b>Selecione um pedido</b>Clique num pedido da lista para comparar a NF com o pedido criado.</div>
@@ -496,18 +560,18 @@
     <footer class="statusbar"><div class="msg"><i class="mi">i</i><span></span></div></footer>
   </section>
 
-  <!-- ===== Resultados (admin) ===== -->
+  <!-- ===== Resultados ===== -->
   <section class="view results" id="viewResults" hidden>
-    <h2>Resultados da conferência</h2>
-    <p class="lead">Cada decisão é comparada com a NF: rejeitar uma NF com divergência ou confirmar uma NF idêntica conta como conferência correta.</p>
+    <h2 id="resTitle">Resultados da conferência</h2>
+    <p class="lead">Cada decisão é comparada com a NF: rejeitar uma NF com divergência ou aprovar uma NF idêntica conta como conferência correta.</p>
     <div class="people" id="people"></div>
-    <div class="res-wrap"><table class="res"><thead><tr><th>Hora</th><th>Pedido</th><th>Conferente</th><th>Decisão</th><th>NF tinha divergência?</th><th>Resultado</th><th>Motivo informado</th></tr></thead><tbody id="resRows"></tbody></table></div>
-    <div class="empty" id="resEmpty"><b>Nenhuma decisão ainda</b>As confirmações e rejeições dos conferentes aparecem aqui.</div>
+    <div class="res-wrap"><table class="res"><thead><tr><th>Hora</th><th>Pedido</th><th>Etapa</th><th>Colaborador</th><th>Decisão</th><th>NF tinha divergência?</th><th>Resultado</th><th>Motivo informado</th></tr></thead><tbody id="resRows"></tbody></table></div>
+    <div class="empty" id="resEmpty"><b>Nenhuma decisão ainda</b>As aprovações e rejeições dos colaboradores aparecem aqui.</div>
   </section>
 
   <dialog id="sendDialog">
     <div class="dlg-title">Enviar pedido <span>✦</span></div>
-    <div class="dlg-body"><p><b>Enviar o pedido <span id="sendOrder"></span> para conferência?</b><br>Todos os conferentes recebem. A primeira decisão (confirmar ou rejeitar) vale para todos.</p></div>
+    <div class="dlg-body"><p><b>Enviar o pedido <span id="sendOrder"></span> para conferência?</b><br><span id="sendPath"></span></p></div>
     <div class="dlg-actions"><button class="btn" id="sendCancel">Continuar editando</button><button class="btn primary" id="sendConfirm"><svg class="ico"><use href="#i-send"/></svg>Enviar</button></div>
   </dialog>
 
@@ -515,7 +579,7 @@
     <div class="dlg-title red">Rejeitar pedido <span id="rejectOrder"></span></div>
     <div class="dlg-body">
       <label for="rejectReason"><b>Por que o pedido está sendo rejeitado? *</b></label>
-      <p>O motivo chega na caixa de mensagens dos administradores junto com o pedido e o seu nome.</p>
+      <p>O pedido volta para quem o criou, com o motivo e o seu nome.</p>
       <textarea id="rejectReason" placeholder="Ex.: Item 20 com quantidade 25 na NF, no pedido consta 20."></textarea>
       <span class="rej-hint" id="rejectHint" hidden>Informe o motivo da rejeição (mínimo de 5 caracteres).</span>
     </div>
@@ -528,12 +592,13 @@
   </div>
 </div>
 
+<script src="flow.js"></script>
 <script>
-  // ===== Configuração =====
-  const ADMIN={user:'adm',pass:'adm'}; // login de simulação (fica visível no código da página; não é uma senha segura)
+  // ===== Organização (vem do flow.js) =====
+  const F=window.MTFlow;const {AREAS,FLOW,MASTERS}=F;
+  const LOCAL_PASS='adm'; // só vale sem servidor (arquivo aberto no computador ou prévia); no Render a senha é conferida no servidor
   const DELIVERIES=['Centro de distribuição · São Paulo, SP','Loja · Campinas, SP','Depósito · Curitiba, PR'];
   const FIRST_ORDER=48;
-  const STATUS={new:'Novo pedido',sent:'Enviado para conferência',adjust:'Rejeitado · ajustar',done:'Confirmado e enviado'};
 
   const rnd=n=>Math.floor(Math.random()*n);
   const pick=a=>a[rnd(a.length)];
@@ -543,87 +608,119 @@
   const fmt=(v,c)=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:c||'BRL'}).format(Number(v)||0);
   const fmtDate=d=>d?d.split('-').reverse().join('/'):'—';
   const fmtWhen=iso=>{if(!iso)return'';const d=new Date(iso);const t=d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});return d.toDateString()===new Date().toDateString()?t:`${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})} ${t}`};
+  const fmtAgo=iso=>{const m=Math.max(0,Math.round((Date.now()-new Date(iso))/60000));return m<1?'agora':m<60?`há ${m} min`:m<1440?`há ${Math.floor(m/60)} h`:`há ${Math.floor(m/1440)} d`};
   const nowISO=()=>new Date().toISOString();
   const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`};
-  const norm=s=>String(s??'').trim().toLowerCase().replace(/\s+/g,' ');
   const lineTotal=x=>(Number(x.qty)||0)*(Number(x.price)||0);
   const totalsText=its=>{const t={};(its||[]).forEach(x=>t[x.currency]=(t[x.currency]||0)+lineTotal(x));return Object.keys(t).map(c=>fmt(t[c],c)).join(' + ')||'—'};
   const orderNum=no=>Number(String(no).split('-').pop())||0;
+  const itemsTxt=its=>`${(its||[]).length} ${(its||[]).length===1?'item':'itens'}`;
   const lsGet=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
   const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
+  const areaName=a=>AREAS[a]?.name||'';
+  const curStage=c=>c.stages[c.stageIdx];
 
-  // ===== Mensagens na barra de status =====
   function toast(message,type='ok'){document.querySelectorAll('.msg').forEach(el=>{el.className='msg';void el.offsetWidth;el.classList.add('flash',type);el.querySelector('.mi').textContent=type==='error'?'✕':type==='info'?'i':'✓';el.querySelector('span').textContent=message})}
+  function setConn(state,text){[$('connLogin'),$('connPill')].forEach(el=>{el.classList.remove('on','off');if(state)el.classList.add(state);el.querySelector('span').textContent=text})}
 
-  // ===== Base de dados =====
-  // 1) servidor próprio (Render): window.MT_API é injetado pelo server.js
-  // 2) base da página no claude.ai
-  // 3) local, só nesta janela (arquivo aberto direto do computador)
-  let store=null;
-  // Decisão "primeira vale" para as bases sem servidor: trava curta, relê e só grava se ainda estiver pendente
-  async function decideWith(s,id,patch){await s.lock('checks',id,`${patch.decidedBy}-${rnd(1e6)}`);const fresh=await s.get('checks',id);
-    if(!fresh||fresh.status!=='pending')return{ok:false,current:fresh};const full={...patch,decidedAt:nowISO()};await s.update('checks',id,full);return{ok:true,current:{...fresh,...full}}}
-  function dbStore(db){const s={kind:'db',
-    watch(c,cb,err){return db.collection(c).onSnapshot(snap=>cb(snap.docs.map(d=>({id:d.id,...d.data()}))),err)},
-    set:(c,id,v)=>db.doc(`${c}/${id}`).set(v),
-    update:(c,id,p)=>db.doc(`${c}/${id}`).update(p),
-    async get(c,id){const snap=await db.doc(`${c}/${id}`).get();return snap.exists?snap.data():null},
-    async lock(c,id,holder){try{return(await db.doc(`${c}/${id}`).acquire({holder,ttlMs:8000})).acquired}catch{return true}},
-    decide:(id,patch)=>decideWith(s,id,patch)};return s}
-  function localStore(){const data={orders:new Map(),checks:new Map()},subs={orders:[],checks:[]};
-    const emit=c=>subs[c].forEach(f=>f([...data[c].entries()].map(([id,v])=>({id,...clone(v)}))));
-    const s={kind:'local',watch(c,cb){subs[c].push(cb);setTimeout(()=>emit(c))},async set(c,id,v){data[c].set(id,clone(v));emit(c)},
-      async update(c,id,p){data[c].set(id,{...data[c].get(id),...clone(p)});emit(c)},async get(c,id){const v=data[c].get(id);return v?clone(v):null},async lock(){return true},
-      decide:(id,patch)=>decideWith(s,id,patch)};return s}
+  // ===== Sessão =====
+  let session=null;
+  const isMaster=()=>session?.role==='master',isManager=()=>session?.role==='manager',isCollab=()=>session?.role==='collab',isGerente=()=>isMaster()||isManager();
+  const me=()=>({role:session.role,area:session.area||null,name:session.name});
+
+  // ===== Bases de dados =====
+  // servidor (Render): as regras são conferidas no servidor
   function apiStore(base){let rev='',timer=null,started=false,token=null;const subs={orders:[],checks:[]};
     async function req(method,url,body){const r=await fetch(base+url,{method,headers:{'content-type':'application/json',...(token?{authorization:'Bearer '+token}:{})},body:body===undefined?undefined:JSON.stringify(body)});
-      const j=await r.json().catch(()=>({}));if(!r.ok&&r.status!==409){const e=new Error(j.error||String(r.status));e.code=r.status===401?'unauthorized':r.status===400?'bad_request':'unavailable';throw e}return{status:r.status,...j}}
+      const j=await r.json().catch(()=>({}));if(!r.ok&&r.status!==409){const e=new Error(j.error||`Erro ${r.status}`);e.code=r.status===401?'unauthorized':r.status===403?'forbidden':r.status===400?'bad_request':'unavailable';e.status=r.status;throw e}return{status:r.status,...j}}
     async function poll(){clearTimeout(timer);try{const j=await req('GET',`/state?rev=${encodeURIComponent(rev)}`);setConn('on','Servidor conectado');
         if(!j.unchanged){rev=j.rev;subs.orders.forEach(f=>f(j.orders||[]));subs.checks.forEach(f=>f(j.checks||[]))}}
       catch{setConn('off','Sem conexão com o servidor · tentando de novo…')}finally{timer=setTimeout(poll,document.hidden?8000:2500)}}
     document.addEventListener('visibilitychange',()=>{if(!document.hidden&&started)poll()});
     return{kind:'api',setToken(t){token=t||null},
       watch(c,cb){subs[c].push(cb);if(!started){started=true;setTimeout(poll)}},
-      async set(c,id,v){await req(c==='orders'?'PUT':'POST',`/${c}/${encodeURIComponent(id)}`,{data:v});poll()},
-      async get(c,id){return(await req('GET',`/doc/${c}/${encodeURIComponent(id)}`)).data||null},
-      async decide(id,patch){const j=await req('POST',`/checks/${encodeURIComponent(id)}/decide`,patch);poll();return{ok:j.status!==409&&!!j.ok,current:j.current||null}},
-      async login(user,pass){const j=await req('POST','/login',{user,pass});if(j.status!==200||!j.token)return null;token=j.token;return j.token}}}
+      async saveOrder(no,data){await req('PUT',`/orders/${encodeURIComponent(no)}`,{data});poll()},
+      async getOrder(no){return(await req('GET',`/doc/orders/${encodeURIComponent(no)}`)).data||null},
+      async sendCheck(id,data){await req('POST',`/checks/${encodeURIComponent(id)}`,{data});poll()},
+      async decide(id,p){const j=await req('POST',`/checks/${encodeURIComponent(id)}/decide`,p);poll();return{ok:j.status===200&&!!j.ok,current:j.current||null}},
+      async login(user,pass,name){try{const j=await req('POST','/login',{user,pass,name});return j}catch(e){if(e.status===401)return null;throw e}}}}
+  // sem servidor: as mesmas regras rodam na própria página
+  function clientStore(raw){return{kind:raw.kind,setToken(){},watch:raw.watch,
+    async saveOrder(no,data){const ex=await raw.get('orders',no);await raw.put('orders',no,{...data,createdBy:ex?.createdBy||me(),updatedAt:nowISO()})},
+    getOrder:no=>raw.get('orders',no),
+    async sendCheck(id,d){const o=await raw.get('orders',d.orderNo);const at=nowISO();
+      await raw.put('checks',id,{...d,stages:F.buildStages(F.startAreaFor(o?.createdBy)),stageIdx:0,status:'pending',history:[],sentAt:at,stageSince:at,sentBy:me()})},
+    async decide(id,p){await raw.lock('checks',id,`${p.name}-${rnd(1e6)}`);const c=await raw.get('checks',id);
+      if(!c||c.status!=='pending'||c.stageIdx!==p.stageIdx)return{ok:false,current:c};
+      if(!F.canApprove(c.stages[c.stageIdx],p.name,p.area)){const e=new Error('Esta etapa não é sua.');e.code='forbidden';throw e}
+      const next=F.decide(c,{decision:p.decision,name:p.name,reason:p.reason,at:nowISO()});await raw.put('checks',id,next);return{ok:true,current:next}},
+    async login(user,pass,name){const u=user.trim().toLowerCase();if(pass!==LOCAL_PASS)return null;
+      if(u==='adm')return MASTERS.includes(name)?{session:{role:'master',name,area:null}}:null;
+      const area=Object.keys(AREAS).find(k=>AREAS[k].login===u);return area?{session:{role:'manager',area,name:AREAS[area].manager.name}}:null}}}
+  function dbRaw(db){return{kind:'db',watch:(c,cb,err)=>db.collection(c).onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),err),
+    put:(c,id,v)=>db.doc(`${c}/${id}`).set(JSON.parse(JSON.stringify(v))),async get(c,id){const s=await db.doc(`${c}/${id}`).get();return s.exists?clone(s.data()):null},
+    async lock(c,id,holder){try{await db.doc(`${c}/${id}`).acquire({holder,ttlMs:8000})}catch{}}}}
+  function localRaw(){const data={orders:new Map(),checks:new Map()},subs={orders:[],checks:[]};
+    const emit=c=>subs[c].forEach(f=>f([...data[c].entries()].map(([id,v])=>({id,...clone(v)}))));
+    return{kind:'local',watch(c,cb){subs[c].push(cb);setTimeout(()=>emit(c))},async put(c,id,v){data[c].set(id,clone(v));emit(c)},async get(c,id){const v=data[c].get(id);return v?clone(v):null},async lock(){}}}
+  let store=null;
   async function safe(fn){try{return await fn()}catch(e){console.error(e);const c=e&&e.code;
-    toast(c==='invalid_argument'?'Sem permissão para gravar: peça ao dono da página acesso de Colaborador ou Editor.':c==='unauthorized'?'Sessão de administrador expirada. Saia e entre de novo.':c==='quota_exceeded'?'Limite de armazenamento atingido.':c==='bad_request'?'O servidor recusou os dados enviados. Revise o pedido.':`Não foi possível gravar (${c||'erro'}). Tente de novo.`,'error');throw e}}
-  function setConn(state,text){[$('connLogin'),$('connPill')].forEach(el=>{el.classList.remove('on','off');if(state)el.classList.add(state);el.querySelector('span').textContent=text})}
+    toast(c==='invalid_argument'?'Sem permissão para gravar nesta página.':c==='unauthorized'?'Sessão expirada. Saia e entre de novo.':e?.message&&c!=='unavailable'?e.message:`Não foi possível gravar (${c||'erro'}). Tente de novo.`,'error');throw e}}
 
   // ===== Estado =====
-  let session=null;
   let ordersDB=[],checksDB=[],ordersReady=false,checksReady=false;
   let curNo=null,draft=null,form=null,dirty=false;
-  let openId=null;const prevStatus=new Map();
-  const seenChecks=new Set(lsGet('mt-seen-checks',[]));
-  const seenMsgs=new Set(lsGet('mt-seen-msgs',[]));
-  const isAdmin=()=>session?.role==='admin';
+  let openId=null,ckFilter='todo';const prevState=new Map();
+  let seenChecks=new Set(),seenMsgs=new Set();
+  const seenKey=k=>`mt-${k}-${session.role}-${session.area||''}-${session.name}`;
+  const markSeen=(set,k,id)=>{set.add(id);lsSet(seenKey(k),[...set])};
 
   // ===== Login =====
+  $('masterName').innerHTML=MASTERS.map(n=>`<option>${esc(n)}</option>`).join('');
+  $('checkerArea').innerHTML=FLOW.map(a=>`<option value="${a}">${esc(AREAS[a].fullName||AREAS[a].name)}</option>`).join('');
+  $('admUser').addEventListener('input',()=>$('masterWrap').hidden=$('admUser').value.trim().toLowerCase()!=='adm');
   document.querySelectorAll('.ltab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.ltab').forEach(x=>x.classList.toggle('active',x===b));$('formAdmin').hidden=b.dataset.ltab!=='formAdmin';$('formChecker').hidden=b.dataset.ltab!=='formChecker'}));
-  $('formAdmin').addEventListener('submit',async e=>{e.preventDefault();const u=$('admUser').value.trim(),p=$('admPass').value;let ok=false,token=null;
-    if(store?.login){try{token=await store.login(u,p);ok=!!token}catch{$('admErr').textContent='Servidor indisponível. Tente de novo em instantes.';$('admErr').hidden=false;return}} // no Render o servidor confere a senha
-    else ok=u===ADMIN.user&&p===ADMIN.pass;
-    if(ok){$('admErr').hidden=true;startSession({role:'admin',name:'Administrador',token})}else{$('admErr').textContent='Usuário ou senha inválidos.';$('admErr').hidden=false;$('admPass').value=''}});
-  $('formChecker').addEventListener('submit',e=>{e.preventDefault();const n=$('checkerName').value.trim().replace(/\s+/g,' ');if(n.length<2){$('nameErr').hidden=false;return}$('nameErr').hidden=true;startSession({role:'checker',name:n})});
-  $('logout').addEventListener('click',()=>{if(dirty){toast('Há alterações não salvas na ME22N. Salve ou descarte antes de sair.','error');return}session=null;store?.setToken?.(null);try{sessionStorage.removeItem('mt-session')}catch{}showLogin()});
+  function loginErr(id,msg){$(id).textContent=msg;$(id).hidden=!msg}
+  $('formAdmin').addEventListener('submit',async e=>{e.preventDefault();if(!store){loginErr('admErr','Ainda conectando. Tente de novo em instantes.');return}
+    const u=$('admUser').value.trim(),p=$('admPass').value,n=$('masterName').value;
+    try{const r=await store.login(u,p,n);if(!r){loginErr('admErr','Usuário ou senha inválidos.');$('admPass').value='';return}
+      loginErr('admErr','');startSession({...r.session,token:r.token||null})}
+    catch(err){loginErr('admErr',err.message||'Servidor indisponível. Tente de novo em instantes.')}});
+  $('formChecker').addEventListener('submit',e=>{e.preventDefault();const area=$('checkerArea').value;const name=F.matchMember(area,$('checkerName').value);
+    if(!name){loginErr('nameErr',`Nome não encontrado na equipe de ${areaName(area)}. Confira a área ou digite nome e sobrenome.`);return}
+    loginErr('nameErr','');startSession({role:'collab',area,name})});
+  $('logout').addEventListener('click',()=>{if(dirty){toast('Há alterações não salvas na ME22N. Salve ou descarte antes de sair.','error');return}
+    session=null;form=null;draft=null;curNo=null;openId=null;store?.setToken?.(null);try{sessionStorage.removeItem('mt-session')}catch{}showLogin()});
   function showLogin(){document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='viewLogin');$('topbar').hidden=true;$('notif').hidden=true;$('admPass').value=''}
+
+  const TABS={master:[['viewFlow','Fluxo de áreas','i-flow'],['viewCheck','Conferências','i-bell'],['viewBuyer','ME22N · Pedidos','i-cart'],['viewResults','Resultados','i-chart']],
+    manager:[['viewCheck','Minha área','i-bell'],['viewBuyer','ME22N · Pedidos','i-cart'],['viewResults','Resultados','i-chart']],
+    collab:[['viewCheck','Conferência','i-bell']]};
   function startSession(s){session=s;try{sessionStorage.setItem('mt-session',JSON.stringify(s))}catch{}store?.setToken?.(s.token);
-    $('topbar').hidden=false;$('whoName').textContent=s.name;
-    $('swBuyer').hidden=!isAdmin();$('swResults').hidden=!isAdmin();
-    $('ckWho').textContent=isAdmin()?'Visão do administrador · resultado visível após a decisão':`Conferente: ${s.name}`;
-    if(isAdmin()&&ordersReady&&!form)newDraft();
-    showView(isAdmin()?'viewBuyer':'viewCheck');renderAll()}
+    seenChecks=new Set(lsGet(seenKey('checks'),[]));seenMsgs=new Set(lsGet(seenKey('msgs'),[]));
+    $('tabs').innerHTML=TABS[s.role].map(([v,l,i])=>`<button class="sw" data-view="${v}"><svg class="ico"><use href="#${i}"/></svg>${l} <span class="badge" data-badge="${v}" hidden>0</span></button>`).join('');
+    $('whoRole').textContent=isMaster()?'Gerente master':isManager()?`Gerente · ${areaName(s.area)}`:areaName(s.area);$('whoName').textContent=s.name;
+    $('ckTitle').textContent=isCollab()?'Pedidos para conferir':isManager()?`Área ${areaName(s.area)}`:'Todas as conferências';
+    $('ckWho').textContent=isCollab()?`${s.name} · ${areaName(s.area)}`:isManager()?'Acompanhe os pedidos da sua área. Quem aprova são os colaboradores.':'Visão dos gerentes master · somente leitura';
+    $('ordersTitle').textContent=isMaster()?'Pedidos (todas as áreas)':'Pedidos da sua área';
+    $('flowHint').innerHTML=isGerente()?`Seus pedidos seguem: <b>${esc([...new Set(F.buildStages(F.startAreaFor(me())).map(s=>areaName(s.area)))].join(' → '))}</b>`:'';
+    $('buyer').placeholder=s.name;
+    $('topbar').hidden=false;openId=null;ckFilter='todo';
+    if(isGerente()&&ordersReady&&!form)newDraft();
+    prevState.clear();checksDB.forEach(c=>prevState.set(c.id,`${c.status}:${c.stageIdx}`));
+    showView(isMaster()?'viewFlow':'viewCheck');renderAll()}
+  $('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-view]');if(b)showView(b.dataset.view)});
+  function showView(id){document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!==id);document.querySelectorAll('#tabs .sw').forEach(b=>b.classList.toggle('active',b.dataset.view===id))}
+  function setBadge(view,n){const b=document.querySelector(`[data-badge="${view}"]`);if(b){b.textContent=n;b.hidden=!n}}
 
-  // ===== Navegação =====
-  function showView(id){document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!==id);document.querySelectorAll('.sw[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id))}
-  document.querySelectorAll('.sw[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
-
-  // ===== Status do pedido = resultado da última conferência dele =====
+  // ===== Quem vê o quê =====
+  const ownsOrder=o=>isMaster()||(isManager()&&o?.createdBy?.role==='manager'&&o.createdBy.area===session.area);
+  const actionable=c=>isCollab()&&c.status==='pending'&&F.canApprove(curStage(c),session.name,session.area);
+  function visibleChecks(){if(isMaster())return checksDB;
+    if(isManager())return checksDB.filter(c=>c.stages.some(s=>s.area===session.area)||(c.sentBy?.role==='manager'&&c.sentBy.area===session.area));
+    return checksDB.filter(c=>(c.status==='pending'&&curStage(c).area===session.area)||c.history.some(h=>h.by===session.name&&h.area===session.area))}
   function lastCheck(no){return checksDB.filter(c=>c.orderNo===no).sort((a,b)=>String(b.sentAt).localeCompare(String(a.sentAt)))[0]}
-  function statusOf(no){const c=lastCheck(no);return!c?'new':c.status==='pending'?'sent':c.status}
+  function statusOf(no){const c=lastCheck(no);return!c?{key:'new',label:'Novo pedido'}:c.status==='pending'?{key:'sent',label:`Em conferência · ${F.stageLabel(curStage(c))}`,c}:c.status==='done'?{key:'done',label:'Concluído',c}:{key:'adjust',label:'Rejeitado · ajustar',c}}
 
   // ===== Documento (NF e pedido) =====
   function docHTML(d){
@@ -642,25 +739,31 @@
       ${d.obs?`<div class="doc-obs"><dt>Observações</dt><p>${esc(d.obs)}</p></div>`:''}
     </article>`}
   const nfDoc=c=>docHTML({kind:'nf',title:'Nota fiscal do fornecedor',number:`NF-e ${c.nf.nfNo}`,sub:`Emissão ${fmtWhen(c.sentAt)} · Série 1 · ref. ${c.orderNo}`,supplierName:c.nf.supplier,supplierCode:c.nf.supplierCode,payment:c.nf.payment,delivery:c.nf.delivery,items:c.nf.items});
-  const recDoc=c=>docHTML({kind:'order',title:'Pedido criado',number:c.orderNo,sub:`${c.rec.buyer||''} · enviado ${fmtWhen(c.sentAt)}`,supplierName:c.rec.supplier,supplierCode:c.rec.supplierCode,payment:c.rec.payment,delivery:c.rec.delivery,items:c.rec.items,obs:c.rec.observations});
+  const recDoc=c=>docHTML({kind:'order',title:'Pedido criado',number:c.orderNo,sub:`${c.sentBy?.name||''} · enviado ${fmtWhen(c.sentAt)}`,supplierName:c.rec.supplier,supplierCode:c.rec.supplierCode,payment:c.rec.payment,delivery:c.rec.delivery,items:c.rec.items,obs:c.rec.observations});
+  function trailHTML(c){return `<ol class="trail" aria-label="Trajeto do pedido">${c.stages.map((s,i)=>{const h=c.history.find(x=>x.stageIdx===i);let cls='',txt;
+      if(h){cls=h.decision==='done'?'ok':'rej';txt=`${h.decision==='done'?'Aprovado':'Rejeitado'} por ${esc(h.by)} · ${fmtWhen(h.at)}`}
+      else if(c.status==='pending'&&i===c.stageIdx){cls='now';txt=`Aguardando ${esc(F.waitingFor(s))} · ${fmtAgo(c.stageSince||c.sentAt)}`}
+      else txt=c.status==='adjust'?'Não chegou':'Próxima';
+      return `<li class="${cls}"><b>${esc(F.stageLabel(s))}</b><span>${txt}</span></li>`}).join('')}</ol>`}
 
   // ===== ME22N =====
-  const blankHeader=()=>({supplier:'',supplierCode:'',orderDate:today(),payment:'30 dias',delivery:DELIVERIES[0],buyer:'',observations:''});
+  const blankHeader=()=>({supplier:'',supplierCode:'',orderDate:today(),payment:'30 dias',delivery:DELIVERIES[0],buyer:session?.name||'',observations:''});
   const HEADER_IDS=['supplier','supplierCode','orderDate','payment','delivery','buyer','observations'];
   const tbody=$('itemRows');const MIN_ROWS=6;
   function nextNo(){const nums=ordersDB.map(o=>orderNum(o.no));if(draft)nums.push(orderNum(draft.no));return `OC-2026-${String(Math.max(FIRST_ORDER-1,...nums)+1).padStart(4,'0')}`}
-  function allOrders(){const list=ordersDB.map(o=>({no:o.no,header:o.header,items:o.items,draft:false}));if(draft&&!ordersDB.some(o=>o.no===draft.no))list.push({...draft,draft:true});return list.sort((a,b)=>orderNum(b.no)-orderNum(a.no))}
-  function newDraft(){draft={no:nextNo(),header:blankHeader(),items:[]};loadOrder(draft.no)}
+  function allOrders(){const list=ordersDB.filter(ownsOrder).map(o=>({...o,draft:false}));if(draft&&!ordersDB.some(o=>o.no===draft.no))list.push({...draft,draft:true});return list.sort((a,b)=>orderNum(b.no)-orderNum(a.no))}
+  function newDraft(){draft={no:nextNo(),header:blankHeader(),items:[],createdBy:me()};loadOrder(draft.no)}
   function loadOrder(no){const o=ordersDB.find(x=>x.no===no)||(draft&&draft.no===no?draft:null);if(!o)return;
-    curNo=no;form={header:{...blankHeader(),...clone(o.header||{})},items:clone(o.items||[])};
+    curNo=no;form={header:{...blankHeader(),...clone(o.header||{})},items:clone(o.items||[]),createdBy:o.createdBy||me()};
     HEADER_IDS.forEach(id=>$(id).value=form.header[id]??'');
     document.querySelectorAll('.error-field').forEach(x=>x.classList.remove('error-field'));
     dirty=false;setSaveState(ordersDB.some(x=>x.no===no)?'Salvo na base':'Rascunho não salvo','#56a17b');renderBuyer()}
-  function renderBuyer(){if(!form)return;$('titleOrder').textContent=curNo;renderItems();renderStatus();renderSide()}
-  function renderStatus(){if(!form)return;const st=statusOf(curNo);const b=$('statusBadge');b.textContent=STATUS[st];b.className='status '+(st==='new'?'':st);
-    const c=lastCheck(curNo);const ban=$('adjBanner');ban.className='adj-banner';
-    if(st==='adjust'){ban.hidden=false;ban.innerHTML=`<svg class="ico" style="color:var(--red);margin-top:2px"><use href="#i-x"/></svg><div><b>Pedido rejeitado por ${esc(c.decidedBy)}</b> · ${fmtWhen(c.decidedAt)}<br>Motivo: ${esc(c.reason)}<br><span class="hint">Ajuste o pedido e clique em Enviar pedido para mandar de novo.</span></div>`}
-    else if(st==='done'){ban.hidden=false;ban.classList.add('ok');ban.innerHTML=`<svg class="ico" style="color:var(--ok);margin-top:2px"><use href="#i-check"/></svg><div><b>Pedido aprovado por ${esc(c.decidedBy)}</b> · ${fmtWhen(c.decidedAt)} · confirmado e enviado ao fornecedor</div>`}
+  function renderBuyer(){if(!form)return;$('titleOrder').textContent=curNo;const cb=form.createdBy;$('titleBy').textContent=`Criado por ${cb?.name||session.name}${cb?.role==='manager'?` (${areaName(cb.area)})`:''}`;renderItems();renderStatus();renderSide()}
+  function renderStatus(){if(!form)return;const st=statusOf(curNo);const b=$('statusBadge');b.textContent=st.label;b.className='status '+(st.key==='new'?'':st.key);
+    const c=st.c;const ban=$('adjBanner');ban.className='adj-banner';
+    if(st.key==='adjust'){ban.hidden=false;ban.innerHTML=`<svg class="ico" style="color:var(--red);margin-top:2px"><use href="#i-x"/></svg><div><b>Rejeitado por ${esc(c.decidedBy)} (${esc(F.stageLabel(c.stages[c.stageIdx]))})</b> · ${fmtWhen(c.decidedAt)}<br>Motivo: ${esc(c.reason)}<br><span class="hint">Ajuste o pedido e clique em Enviar pedido. Ele recomeça o trajeto do início.</span></div>`}
+    else if(st.key==='done'){ban.hidden=false;ban.classList.add('ok');ban.innerHTML=`<svg class="ico" style="color:var(--ok);margin-top:2px"><use href="#i-check"/></svg><div><b>Pedido concluído</b> · aprovado em todas as etapas · última aprovação: ${esc(c.decidedBy)} às ${fmtWhen(c.decidedAt)}</div>`}
+    else if(st.key==='sent'){ban.hidden=false;ban.classList.add('info');ban.innerHTML=`<svg class="ico" style="color:var(--gold2);margin-top:2px"><use href="#i-bell"/></svg><div><b>Em conferência: ${esc(F.stageLabel(curStage(c)))}</b> · aguardando ${esc(F.waitingFor(curStage(c)))} · ${fmtAgo(c.stageSince||c.sentAt)}</div>`}
     else ban.hidden=true}
   function renderItems(){const items=form.items;tbody.innerHTML='';
     items.forEach((it,i)=>{const tr=document.createElement('tr');const n=(i+1)*10;
@@ -668,7 +771,7 @@
       tbody.appendChild(tr)});
     for(let f=items.length;f<MIN_ROWS;f++){const tr=document.createElement('tr');tr.className='filler';tr.title='Duplo clique para incluir um item';
       tr.innerHTML=!items.length&&f===0?'<td colspan="11" class="ro" style="text-align:center">Nenhum item no pedido. Clique em <b>Adicionar item</b> para começar.</td>':'<td></td>'.repeat(11);tbody.appendChild(tr)}
-    $('itemCount').textContent=`${items.length} ${items.length===1?'item':'itens'}`;updateTotals()}
+    $('itemCount').textContent=itemsTxt(items);updateTotals()}
   function updateTotals(){const items=form.items;const totals={};items.forEach(x=>totals[x.currency]=(totals[x.currency]||0)+lineTotal(x));
     document.querySelectorAll('[data-total]').forEach(el=>{const x=items[Number(el.dataset.total)];el.textContent=fmt(lineTotal(x),x.currency)});
     $('summaryRows').innerHTML=Object.entries(totals).map(([c,v])=>`<div class="summary-row"><span>Subtotal · ${c}</span><strong>${fmt(v,c)}</strong></div>`).join('');
@@ -678,22 +781,24 @@
   function readHeader(){HEADER_IDS.forEach(id=>form.header[id]=$(id).value)}
 
   // Caixa de mensagens + lista de pedidos
-  function renderSide(){if(!isAdmin()||!form)return;
+  function renderSide(){if(!isGerente()||!form)return;
     const list=allOrders();
-    $('orderNumber').innerHTML=list.map(o=>`<option value="${o.no}">${o.no} · ${o.draft?'Rascunho não salvo':STATUS[statusOf(o.no)]}</option>`).join('');if(curNo)$('orderNumber').value=curNo;
-    $('myOrders').innerHTML=list.map(o=>{const st=o.draft?'new':statusOf(o.no);const its=o.no===curNo?form.items:(o.items||[]);const sup=o.no===curNo?form.header.supplier:o.header?.supplier;
-      return `<li><button data-order="${o.no}" class="${o.no===curNo?'cur':''}"><span class="t">${o.no}</span><span class="chip ${st}">${o.draft?'Rascunho':STATUS[st]}</span><span class="s">${esc(sup)||'Sem fornecedor'} · ${its.length} ${its.length===1?'item':'itens'} · ${totalsText(its)}</span></button></li>`}).join('');
-    const msgs=checksDB.filter(c=>c.status!=='pending').sort((a,b)=>String(b.decidedAt).localeCompare(String(a.decidedAt)));
+    $('orderNumber').innerHTML=list.map(o=>`<option value="${o.no}">${o.no} · ${o.draft?'Rascunho não salvo':esc(statusOf(o.no).label)}</option>`).join('');if(curNo)$('orderNumber').value=curNo;
+    $('myOrders').innerHTML=list.map(o=>{const st=o.draft?{key:'new',label:'Rascunho'}:statusOf(o.no);const its=o.no===curNo?form.items:(o.items||[]);const sup=o.no===curNo?form.header.supplier:o.header?.supplier;
+      const by=isMaster()&&o.createdBy?.role==='manager'?` · ${areaName(o.createdBy.area)}`:'';
+      return `<li><button data-order="${o.no}" class="${o.no===curNo?'cur':''}"><span class="t">${o.no}</span><span class="chip ${st.key}" title="${esc(st.label)}">${esc(st.label)}</span><span class="s">${esc(sup)||'Sem fornecedor'} · ${itemsTxt(its)} · ${totalsText(its)}${by}</span></button></li>`}).join('');
+    const mine=new Set(ordersDB.filter(ownsOrder).map(o=>o.no));
+    const msgs=checksDB.filter(c=>c.status!=='pending'&&mine.has(c.orderNo)).sort((a,b)=>String(b.decidedAt).localeCompare(String(a.decidedAt)));
     $('msgEmpty').hidden=msgs.length>0;
-    $('msgList').innerHTML=msgs.map(c=>c.status==='adjust'
-      ?`<div class="mcard rej ${seenMsgs.has(c.id)?'':'unread'}"><div class="mc-top"><b>Pedido ${esc(c.orderNo)} rejeitado</b><span>${fmtWhen(c.decidedAt)}</span></div><div class="mc-reason"><em>Motivo da rejeição</em>${esc(c.reason)}</div><div class="mc-meta">Rejeitado por <b>${esc(c.decidedBy)}</b> · ${(c.rec.items||[]).length} ${(c.rec.items||[]).length===1?'item':'itens'} · ${totalsText(c.rec.items)}</div><button class="btn danger" data-msg="${c.id}"><svg class="ico"><use href="#i-doc"/></svg>Abrir pedido para ajustar</button></div>`
-      :`<div class="mcard ${seenMsgs.has(c.id)?'':'unread'}"><div class="mc-top"><b>Pedido ${esc(c.orderNo)} aprovado</b><span>${fmtWhen(c.decidedAt)}</span></div><div class="mc-meta">Confirmado por <b>${esc(c.decidedBy)}</b> e enviado ao fornecedor · ${totalsText(c.rec.items)}</div><button class="btn" data-msg="${c.id}"><svg class="ico"><use href="#i-doc"/></svg>Ver pedido</button></div>`).join('');
-    const unread=msgs.filter(c=>!seenMsgs.has(c.id)).length;$('msgBadge').textContent=unread;$('msgBadge').hidden=!unread;$('buyerBadge').textContent=unread;$('buyerBadge').hidden=!unread}
+    $('msgList').innerHTML=msgs.slice(0,30).map(c=>c.status==='adjust'
+      ?`<div class="mcard rej ${seenMsgs.has(c.id)?'':'unread'}"><div class="mc-top"><b>Pedido ${esc(c.orderNo)} rejeitado</b><span>${fmtWhen(c.decidedAt)}</span></div><div class="mc-reason"><em>Motivo da rejeição</em>${esc(c.reason)}</div><div class="mc-meta">Rejeitado por <b>${esc(c.decidedBy)}</b> em ${esc(F.stageLabel(c.stages[c.stageIdx]))} · ${itemsTxt(c.rec.items)} · ${totalsText(c.rec.items)}</div><button class="btn danger" data-msg="${c.id}"><svg class="ico"><use href="#i-doc"/></svg>Abrir pedido para ajustar</button></div>`
+      :`<div class="mcard ${seenMsgs.has(c.id)?'':'unread'}"><div class="mc-top"><b>Pedido ${esc(c.orderNo)} concluído</b><span>${fmtWhen(c.decidedAt)}</span></div><div class="mc-meta">Aprovado em todas as etapas · última aprovação: <b>${esc(c.decidedBy)}</b> (${esc(areaName(c.decidedArea))}) · ${totalsText(c.rec.items)}</div><button class="btn" data-msg="${c.id}"><svg class="ico"><use href="#i-doc"/></svg>Ver pedido</button></div>`).join('');
+    const unread=msgs.filter(c=>!seenMsgs.has(c.id)).length;$('msgBadge').textContent=unread;$('msgBadge').hidden=!unread;setBadge('viewBuyer',unread)}
   function switchOrder(no){if(no===curNo)return true;if(dirty){toast('Salve ou descarte as alterações antes de trocar de pedido.','error');$('orderNumber').value=curNo;return false}loadOrder(no);return true}
   $('orderNumber').addEventListener('change',e=>switchOrder(e.target.value));
   $('myOrders').addEventListener('click',e=>{const b=e.target.closest('[data-order]');if(b)switchOrder(b.dataset.order)});
   $('msgList').addEventListener('click',e=>{const b=e.target.closest('[data-msg]');if(!b)return;const c=checksDB.find(x=>x.id===b.dataset.msg);if(!c)return;
-    seenMsgs.add(c.id);lsSet('mt-seen-msgs',[...seenMsgs]);if(switchOrder(c.orderNo)&&c.status==='adjust')toast(`Pedido ${c.orderNo} rejeitado por ${c.decidedBy}: ${c.reason}`,'error');renderSide()});
+    markSeen(seenMsgs,'msgs',c.id);if(switchOrder(c.orderNo)&&c.status==='adjust')toast(`Pedido ${c.orderNo} rejeitado por ${c.decidedBy}: ${c.reason}`,'error');renderSide()});
 
   document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>activateTab(t.dataset.tab)));
   function activateTab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===id));document.querySelectorAll('#secHeader .panel').forEach(p=>p.hidden=p.id!==id);$('secHeader').classList.remove('closed');syncCollapse()}
@@ -707,7 +812,7 @@
   tbody.addEventListener('dblclick',e=>{if(e.target.closest('tr.filler'))addItem()});
   function addItem(){if(!form)return;form.items.push({code:'',name:'',qty:1,date:'',price:0,currency:'BRL'});renderItems();renderSide();markDirty();tbody.querySelector(`[data-i="${form.items.length-1}"][data-k="code"]`)?.focus()}
   $('addItem').addEventListener('click',addItem);$('addItemTop').addEventListener('click',addItem);
-  $('sortAsc').addEventListener('click',()=>{form.items.sort((a,b)=>a.code.localeCompare(b.code));renderItems();markDirty();toast('Itens ordenados por material.')});
+  $('sortAsc').addEventListener('click',()=>{if(!form)return;form.items.sort((a,b)=>a.code.localeCompare(b.code));renderItems();markDirty();toast('Itens ordenados por material.')});
 
   const required=['supplier','orderDate','buyer','delivery'];
   function validate(){if(!form)return false;let ok=true;document.querySelectorAll('.error-field').forEach(x=>x.classList.remove('error-field'));
@@ -718,15 +823,14 @@
     return ok}
   $('validate').addEventListener('click',()=>{if(validate())toast('Pedido verificado. Nenhum campo obrigatório em branco.')});
 
-  // Grava o pedido na base (um rascunho ganha outro número se outro administrador já usou o dele)
+  // Grava o pedido (um rascunho ganha outro número se alguém já usou o dele)
   async function persist(){readHeader();let no=curNo;
-    if(draft&&draft.no===no){const exists=await store.get('orders',no);if(exists){const old=no;draft.no=no=nextNoAfter(no);curNo=no;toast(`O número ${old} já foi usado por outro administrador. Este pedido passou a ser ${no}.`,'info')}}
-    await safe(()=>store.set('orders',no,{no,header:clone(form.header),items:clone(form.items),updatedAt:nowISO()}));
+    if(draft&&draft.no===no){const exists=await store.getOrder(no);if(exists){const old=no;const nums=ordersDB.map(o=>orderNum(o.no)).concat(orderNum(no));draft.no=no=`OC-2026-${String(Math.max(...nums)+1).padStart(4,'0')}`;curNo=no;toast(`O número ${old} já foi usado por outro gerente. Este pedido passou a ser ${no}.`,'info')}}
+    await safe(()=>store.saveOrder(no,{no,header:clone(form.header),items:clone(form.items)}));
     if(draft&&draft.no===no)draft=null;dirty=false;return no}
-  function nextNoAfter(no){const nums=ordersDB.map(o=>orderNum(o.no)).concat(orderNum(no));return `OC-2026-${String(Math.max(...nums)+1).padStart(4,'0')}`}
   async function save(){if(!validate())return;$('save').disabled=true;try{const no=await persist();setSaveState('Salvo na base','#56a17b');toast(`Pedido ${no} salvo.`);renderBuyer()}catch{}finally{$('save').disabled=false}}
   $('save').addEventListener('click',save);
-  $('cancel').addEventListener('click',()=>{const saved=ordersDB.some(o=>o.no===curNo);if(!saved&&draft)draft={no:curNo,header:blankHeader(),items:[]};dirty=false;loadOrder(curNo);toast(saved?'Alterações descartadas. Última versão salva restaurada.':'Alterações descartadas. Pedido em branco.','info')});
+  $('cancel').addEventListener('click',()=>{const saved=ordersDB.some(o=>o.no===curNo);if(!saved&&draft)draft={no:curNo,header:blankHeader(),items:[],createdBy:me()};dirty=false;loadOrder(curNo);toast(saved?'Alterações descartadas. Última versão salva restaurada.':'Alterações descartadas. Pedido em branco.','info')});
   $('newOrder').addEventListener('click',()=>{if(dirty){toast('Salve ou descarte as alterações antes de criar outro pedido.','error');return}if(draft&&!ordersDB.some(o=>o.no===draft.no)){loadOrder(draft.no);toast(`O pedido ${draft.no} ainda está em branco. Preencha e salve antes de criar outro.`,'info');return}newDraft();toast(`Novo pedido ${curNo} criado.`,'info')});
 
   function runCommand(){const raw=$('cmdField').value.trim();const code=raw.replace(/^\/[no]/i,'').toUpperCase();$('cmdField').value='';
@@ -738,19 +842,19 @@
 
   // ===== Envio para conferência =====
   const sendDialog=$('sendDialog');
-  $('submit').addEventListener('click',()=>{if(statusOf(curNo)==='sent'&&!dirty){toast(`O pedido ${curNo} já está aguardando conferência.`,'info');return}if(!validate())return;$('sendOrder').textContent=curNo;sendDialog.showModal()});
+  $('submit').addEventListener('click',()=>{if(!form)return;if(statusOf(curNo).key==='sent'&&!dirty){toast(`O pedido ${curNo} já está em conferência.`,'info');return}if(!validate())return;
+    $('sendOrder').textContent=curNo;const st=F.buildStages(F.startAreaFor(form.createdBy));$('sendPath').textContent=`Trajeto: ${st.map(F.stageLabel).join(' → ')}. Em cada área, só os colaboradores aprovam.`;sendDialog.showModal()});
   $('sendCancel').addEventListener('click',()=>sendDialog.close());
   $('sendConfirm').addEventListener('click',async()=>{sendDialog.close();$('submit').disabled=true;
     try{const no=await persist();
       const rec={...clone(form.header),items:clone(form.items)};
       const round=checksDB.length+1;
-      // A NF chega igual ao pedido; a cada 2 envios (2º, 4º, 6º…), vem com uma divergência proposital
+      // A NF chega igual ao pedido; a cada 2 envios (2º, 4º, 6º…) ela vem com uma divergência proposital
       const nf={...clone(rec),nfNo:`000.${String(480+round).padStart(3,'0')}`};
       const tamper=round%2===0?applyTamper(nf):null;
       const id=`c${Date.now()}${rnd(1000)}`;
-      await safe(()=>store.set('checks',id,{orderNo:no,nf,rec,tamper,round,status:'pending',sentAt:nowISO()}));
-      seenChecks.add(id);lsSet('mt-seen-checks',[...seenChecks]);
-      setSaveState('Enviado','#56a17b');toast(`Pedido ${no} enviado. Todos os conferentes receberam.`)}
+      await safe(()=>store.sendCheck(id,{orderNo:no,nf,rec,tamper,round}));
+      setSaveState('Enviado','#56a17b');toast(`Pedido ${no} enviado para ${areaName(F.startAreaFor(form.createdBy))}.`)}
     catch{}finally{$('submit').disabled=false;renderBuyer()}});
 
   function applyTamper(nf){const i=rnd(nf.items.length);const it=nf.items[i];const n=(i+1)*10;
@@ -764,92 +868,111 @@
     ].sort(()=>Math.random()-.5);
     for(const f of opts){const r=f();if(r)return r}return null}
 
-  function compare(nf,rec){const d=[];
-    if(norm(nf.supplier)!==norm(rec.supplier))d.push(`Fornecedor: NF “${nf.supplier}”, pedido “${rec.supplier||'—'}”`);
-    if(norm(nf.supplierCode)!==norm(rec.supplierCode))d.push(`Código do fornecedor: NF ${nf.supplierCode||'—'}, pedido ${rec.supplierCode||'—'}`);
-    if(nf.payment!==rec.payment)d.push(`Pagamento: NF ${nf.payment}, pedido ${rec.payment}`);
-    if(nf.delivery!==rec.delivery)d.push(`Entrega: NF ${nf.delivery}, pedido ${rec.delivery}`);
-    const A=nf.items||[],B=rec.items||[];
-    for(let i=0;i<Math.max(A.length,B.length);i++){const a=A[i],b=B[i],n=(i+1)*10;
-      if(!b){d.push(`Item ${n} (${a.code}) está na NF e falta no pedido`);continue}
-      if(!a){d.push(`Item ${n} (${b.code}) está no pedido e não consta na NF`);continue}
-      if(norm(a.code)!==norm(b.code))d.push(`Item ${n} · material: NF ${a.code}, pedido ${b.code}`);
-      if(norm(a.name)!==norm(b.name))d.push(`Item ${n} · texto breve: NF “${a.name}”, pedido “${b.name}”`);
-      if(Number(a.qty)!==Number(b.qty))d.push(`Item ${n} · quantidade: NF ${a.qty}, pedido ${b.qty}`);
-      if(a.date!==b.date)d.push(`Item ${n} · entrega: NF ${fmtDate(a.date)}, pedido ${fmtDate(b.date)}`);
-      if(a.currency!==b.currency)d.push(`Item ${n} · moeda: NF ${a.currency}, pedido ${b.currency}`);
-      if(Math.round(Number(a.price)*100)!==Math.round(Number(b.price)*100))d.push(`Item ${n} · preço: NF ${fmt(a.price,a.currency)}, pedido ${fmt(b.price,b.currency)}`)}
-    return d}
-
   // ===== Conferência =====
   let notifTimer;
   function notify(kind,title,text,onOpen){const n=$('notif');n.className='notif '+(kind||'');$('notifTitle').textContent=title;$('notifText').textContent=text;n.hidden=false;
     $('notifOpen').onclick=()=>{n.hidden=true;onOpen()};clearTimeout(notifTimer);notifTimer=setTimeout(()=>n.hidden=true,10000)}
   $('notifClose').addEventListener('click',()=>$('notif').hidden=true);
 
-  function chipText(c){return c.status==='pending'?'Aguardando conferência':c.status==='done'?`Aprovado por ${c.decidedBy}`:`Rejeitado por ${c.decidedBy}`}
+  const FILTERS={todo:'Todos',pend:'Em andamento',done:'Concluídos',adjust:'Rejeitados'};
+  function chipFor(c){if(c.status==='pending')return actionable(c)?['mine','Aguardando você']:['pending',`${F.stageLabel(curStage(c))} · ${F.waitingFor(curStage(c))}`];
+    return c.status==='done'?['done','Concluído']:['adjust',`Rejeitado por ${c.decidedBy}`]}
   function renderInbox(){if(!session)return;
-    const list=[...checksDB].sort((a,b)=>(a.status==='pending')===(b.status==='pending')?String(b.sentAt).localeCompare(String(a.sentAt)):a.status==='pending'?-1:1);
+    let list=visibleChecks();
+    if(ckFilter==='pend')list=list.filter(c=>c.status==='pending');else if(ckFilter==='done')list=list.filter(c=>c.status==='done');else if(ckFilter==='adjust')list=list.filter(c=>c.status==='adjust');
+    const rank=c=>actionable(c)?0:c.status==='pending'?1:2;
+    list=[...list].sort((a,b)=>rank(a)-rank(b)||String(b.stageSince||b.sentAt).localeCompare(String(a.stageSince||a.sentAt)));
+    $('ckFilter').innerHTML=Object.entries(FILTERS).map(([k,l])=>`<button data-f="${k}" class="${k===ckFilter?'active':''}">${l}</button>`).join('');
     $('inboxEmpty').hidden=list.length>0;
-    $('inbox').innerHTML=list.map(c=>`<li><button data-open="${c.id}" class="${c.id===openId?'open':''}"><i class="unread ${seenChecks.has(c.id)||c.status!=='pending'?'seen':''}"></i><span class="t">${esc(c.orderNo)}</span><span class="time">${fmtWhen(c.sentAt)}</span><span class="s">${esc(c.rec.supplier)} · ${(c.rec.items||[]).length} ${(c.rec.items||[]).length===1?'item':'itens'} · ${totalsText(c.rec.items)}</span><span class="chip ${c.status}">${esc(chipText(c))}</span></button></li>`).join('');
-    const pend=checksDB.filter(c=>c.status==='pending'&&!seenChecks.has(c.id)).length;$('badge').textContent=pend;$('badge').hidden=!pend}
+    $('inboxEmpty').innerHTML=isCollab()?`<b>Nada para conferir agora</b>Quando um pedido chegar na etapa de ${esc(areaName(session.area))} que é sua, ele aparece aqui.`:'<b>Nenhum pedido aqui</b>Os pedidos enviados pela ME22N aparecem nesta lista.';
+    $('inbox').innerHTML=list.map(c=>{const [cls,txt]=chipFor(c);const unseen=(isCollab()?actionable(c):c.status==='pending'&&curStage(c).area===session.area)&&!seenChecks.has(`${c.id}:${c.stageIdx}`);
+      return `<li><button data-open="${c.id}" class="${c.id===openId?'open':''}"><i class="unread ${unseen?'':'seen'}"></i><span class="t">${esc(c.orderNo)}</span><span class="time">${fmtWhen(c.stageSince||c.sentAt)}</span><span class="s">${esc(c.rec.supplier)} · ${itemsTxt(c.rec.items)} · ${totalsText(c.rec.items)}</span><span class="chip ${cls}">${esc(txt)}</span></button></li>`}).join('');
+    const badge=isCollab()?checksDB.filter(c=>actionable(c)&&!seenChecks.has(`${c.id}:${c.stageIdx}`)).length:isManager()?checksDB.filter(c=>c.status==='pending'&&curStage(c).area===session.area&&!seenChecks.has(`${c.id}:${c.stageIdx}`)).length:0;
+    setBadge('viewCheck',badge)}
+  $('ckFilter').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(b){ckFilter=b.dataset.f;renderInbox()}});
   $('inbox').addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(b)openCheck(b.dataset.open)});
-  function openCheck(id){const c=checksDB.find(x=>x.id===id);if(!c)return;seenChecks.add(id);lsSet('mt-seen-checks',[...seenChecks]);openId=id;renderInbox();renderCheck();showView('viewCheck');$('ckMain').scrollTop=0}
+  function openCheck(id){const c=checksDB.find(x=>x.id===id);if(!c)return;markSeen(seenChecks,'checks',`${c.id}:${c.stageIdx}`);openId=id;renderInbox();renderCheck();showView('viewCheck');$('ckMain').scrollTop=0}
 
   function renderCheck(){const c=checksDB.find(x=>x.id===openId);if(!c)return;
     let result='';
-    if(c.status!=='pending'&&isAdmin()){const diffs=compare(c.nf,c.rec);const hit=(diffs.length>0)===(c.status==='adjust');
-      const msg=diffs.length?(c.status==='adjust'?'A NF tinha divergências em relação ao pedido e foi rejeitada.':'O pedido foi aprovado, mas a NF tinha divergências:'):(c.status==='done'?'A NF estava idêntica ao pedido e foi aprovada.':'A NF estava idêntica ao pedido; não havia motivo para rejeitar.');
-      result=`<div class="result ${hit?'hit':'miss'}"><b>${hit?'✓ Conferência correta':'✕ Conferência incorreta'} · ${esc(c.decidedBy)}</b><p>${msg}</p>${diffs.length?`<ul>${diffs.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>`:''}${c.tamper?`<p class="small">Divergência proposital desta rodada: ${esc(c.tamper)}</p>`:''}</div>`}
-    const bar=c.status==='pending'
-      ?'<button class="btn danger big" id="adjustBtn"><svg class="ico"><use href="#i-x"/></svg>Rejeitar</button><button class="btn primary big" id="confirmSend"><svg class="ico"><use href="#i-send"/></svg>Confirmar e enviar</button>'
-      :c.status==='done'?`<div class="ck-done done"><svg class="ico"><use href="#i-check"/></svg>Aprovado por ${esc(c.decidedBy)} · ${fmtWhen(c.decidedAt)} · enviado ao fornecedor</div>`
-      :`<div class="ck-done adjust"><svg class="ico"><use href="#i-x"/></svg>Rejeitado por ${esc(c.decidedBy)} · ${fmtWhen(c.decidedAt)} · Motivo: ${esc(c.reason)}</div>`;
-    $('ckMain').innerHTML=`<div class="compare"><div><p class="col-label">NF recebida do fornecedor</p>${nfDoc(c)}</div><div><p class="col-label">Pedido criado na ME22N</p>${recDoc(c)}</div></div>${result}<div class="ck-bar">${bar}</div>`;
-    $('confirmSend')?.addEventListener('click',()=>decide(c.id,'done'));
+    if(isGerente()&&c.history.length){const diffs=F.compare(c.nf,c.rec);
+      const rows=c.history.filter(h=>isMaster()||h.area===session.area).map(h=>`<li>${esc(F.stageLabel(c.stages[h.stageIdx]))} · ${esc(h.by)} ${h.decision==='done'?'aprovou':'rejeitou'} · <b class="${h.hit?'ok-t':'bad-t'}">${h.hit?'✓ correto':'✕ incorreto'}</b></li>`).join('');
+      result=`<div class="result neutral"><b>Avaliação da conferência</b><p>${diffs.length?`A NF tinha ${diffs.length} divergência${diffs.length>1?'s':''} em relação ao pedido:`:'A NF estava idêntica ao pedido.'}</p>${diffs.length?`<ul>${diffs.map(d=>`<li>${esc(d)}</li>`).join('')}</ul>`:''}${c.tamper?`<p class="small">Divergência proposital desta rodada: ${esc(c.tamper)}</p>`:''}${rows?`<ul>${rows}</ul>`:''}</div>`}
+    let bar;const st=curStage(c);
+    if(c.status==='pending'&&actionable(c)){const next=c.stages[c.stageIdx+1];
+      bar=`<button class="btn danger big" id="adjustBtn"><svg class="ico"><use href="#i-x"/></svg>Rejeitar</button><button class="btn primary big" id="confirmSend"><svg class="ico"><use href="#i-send"/></svg>${next?`Aprovar e enviar para ${esc(F.stageLabel(next))}`:'Aprovar e concluir'}</button>`}
+    else if(c.status==='pending')bar=`<div class="ck-done wait"><svg class="ico"><use href="#i-bell"/></svg>${esc(F.stageLabel(st))} · aguardando ${esc(F.waitingFor(st))} · ${fmtAgo(c.stageSince||c.sentAt)}</div>`;
+    else if(c.status==='done')bar=`<div class="ck-done done"><svg class="ico"><use href="#i-check"/></svg>Concluído · aprovado em todas as etapas · última aprovação: ${esc(c.decidedBy)} às ${fmtWhen(c.decidedAt)}</div>`;
+    else bar=`<div class="ck-done adjust"><svg class="ico"><use href="#i-x"/></svg>Rejeitado por ${esc(c.decidedBy)} (${esc(F.stageLabel(c.stages[c.stageIdx]))}) · ${fmtWhen(c.decidedAt)} · Motivo: ${esc(c.reason)}</div>`;
+    $('ckMain').innerHTML=`${trailHTML(c)}<div class="compare"><div><p class="col-label">NF recebida do fornecedor</p>${nfDoc(c)}</div><div><p class="col-label">Pedido criado na ME22N</p>${recDoc(c)}</div></div>${result}<div class="ck-bar">${bar}</div>`;
+    $('confirmSend')?.addEventListener('click',()=>decide(c,'done'));
     $('adjustBtn')?.addEventListener('click',()=>{$('rejectReason').value='';$('rejectHint').hidden=true;$('rejectReason').classList.remove('error-field');$('rejectOrder').textContent=c.orderNo;rejectDialog.dataset.id=c.id;rejectDialog.showModal();$('rejectReason').focus()})}
 
-  // A primeira decisão vale para todos (no Render, o servidor garante isso)
-  async function decide(id,decision,reason){document.querySelectorAll('.ck-bar .btn').forEach(b=>b.disabled=true);
-    try{const r=await safe(()=>store.decide(id,{status:decision,decidedBy:session.name,decidedRole:session.role,reason:reason||''}));const f=r.current;
-      if(!r.ok){toast(f?`Este pedido já foi ${f.status==='done'?'aprovado':'rejeitado'} por ${f.decidedBy}.`:'Este pedido não foi encontrado.','info');return}
-      toast(decision==='done'?`Pedido ${f.orderNo} aprovado e enviado ao fornecedor.`:`Pedido ${f.orderNo} rejeitado. O motivo foi enviado aos administradores.`,decision==='done'?'ok':'error')}
+  async function decide(c,decision,reason){document.querySelectorAll('.ck-bar .btn').forEach(b=>b.disabled=true);
+    try{const r=await safe(()=>store.decide(c.id,{decision,name:session.name,area:session.area,stageIdx:c.stageIdx,reason:reason||''}));const f=r.current;
+      if(!r.ok){toast(f?'Este pedido já foi decidido nesta etapa por outra pessoa.':'Este pedido não foi encontrado.','info');return}
+      const next=f.status==='pending'?F.stageLabel(curStage(f)):'';
+      toast(decision==='adjust'?`Pedido ${f.orderNo} rejeitado. Ele voltou para ${f.sentBy?.name||'quem criou'} com o motivo.`:next?`Pedido ${f.orderNo} aprovado e enviado para ${next}.`:`Pedido ${f.orderNo} aprovado. Fluxo concluído.`,decision==='adjust'?'error':'ok')}
     catch{}finally{renderCheck()}}
   const rejectDialog=$('rejectDialog');
   $('rejectCancel').addEventListener('click',()=>rejectDialog.close());
   $('rejectConfirm').addEventListener('click',()=>{const reason=$('rejectReason').value.trim();
     if(reason.length<5){$('rejectReason').classList.add('error-field');$('rejectHint').hidden=false;$('rejectReason').focus();return}
-    rejectDialog.close();decide(rejectDialog.dataset.id,'adjust',reason)});
+    rejectDialog.close();const c=checksDB.find(x=>x.id===rejectDialog.dataset.id);if(c)decide(c,'adjust',reason)});
 
-  // ===== Resultados (admin) =====
-  function renderResults(){if(!isAdmin())return;
-    const done=checksDB.filter(c=>c.status!=='pending').sort((a,b)=>String(b.decidedAt).localeCompare(String(a.decidedAt)));
-    $('resEmpty').hidden=done.length>0;
-    const per={};
-    $('resRows').innerHTML=done.map(c=>{const diffs=compare(c.nf,c.rec);const hit=(diffs.length>0)===(c.status==='adjust');const p=per[c.decidedBy]||(per[c.decidedBy]={ok:0,total:0});p.total++;if(hit)p.ok++;
-      return `<tr><td>${fmtWhen(c.decidedAt)}</td><td><b>${esc(c.orderNo)}</b></td><td>${esc(c.decidedBy)}</td><td>${c.status==='done'?'Aprovou':'Rejeitou'}</td><td>${diffs.length?`Sim · ${esc(c.tamper||diffs[0])}`:'Não'}</td><td class="${hit?'ok-t':'bad-t'}">${hit?'✓ Correta':'✕ Incorreta'}</td><td class="reason">${esc(c.reason)||'—'}</td></tr>`}).join('');
-    $('people').innerHTML=Object.entries(per).sort((a,b)=>b[1].total-a[1].total).map(([n,p])=>`<div class="person"><b>${esc(n)}</b><span class="rate">${p.ok}/${p.total}</span> <span>conferências corretas</span></div>`).join('')}
+  // ===== Fluxo de áreas (master) =====
+  function renderFlow(){if(!isMaster())return;
+    const pend=checksDB.filter(c=>c.status==='pending'),done=checksDB.filter(c=>c.status==='done'),rej=checksDB.filter(c=>c.status==='adjust');
+    $('kpis').innerHTML=`<div class="kpi wait"><b>${pend.length}</b><span>em andamento</span></div><div class="kpi ok"><b>${done.length}</b><span>concluídos</span></div><div class="kpi rej"><b>${rej.length}</b><span>rejeitados</span></div>`;
+    const card=(c,cls,txt)=>`<button class="fcard ${cls}" data-open="${c.id}"><b>${esc(c.orderNo)}</b><span>${esc(c.rec.supplier)} · ${totalsText(c.rec.items)}</span><em>${esc(txt)}</em></button>`;
+    const lane=(title,sub,count,body,cls='')=>`<section class="lane ${cls}"><div class="lane-head"><b>${esc(title)}<em>${count}</em></b><span>${esc(sub)}</span></div><div class="lane-body">${body||'<div class="lane-empty">Nenhum pedido</div>'}</div></section>`;
+    const byTime=(a,b)=>String(a.stageSince||a.sentAt).localeCompare(String(b.stageSince||b.sentAt));
+    let html=FLOW.map(a=>{const here=pend.filter(c=>curStage(c).area===a).sort(byTime);const rules=F.STAGE_RULES[a];
+      let body;
+      if(rules&&rules.length>1)body=rules.map((r,k)=>{const cs=here.filter(c=>curStage(c).step===k+1);return `<div class="substep">${k+1} · ${esc(r.approvers.map(n=>n.split(' ')[0]).join(', '))}</div>${cs.map(c=>card(c,'',`aguardando · ${fmtAgo(c.stageSince||c.sentAt)}`)).join('')}`}).join('');
+      else body=here.map(c=>card(c,'',`aguardando ${F.waitingFor(curStage(c))} · ${fmtAgo(c.stageSince||c.sentAt)}`)).join('');
+      return lane(AREAS[a].name,`Gerente: ${AREAS[a].manager.name}`,here.length,body)}).join('');
+    const recent=(l,k)=>[...l].sort((a,b)=>String(b[k]).localeCompare(String(a[k]))).slice(0,15);
+    html+=lane('Concluídos','Aprovados em todas as etapas',done.length,recent(done,'decidedAt').map(c=>card(c,'ok',`${fmtWhen(c.decidedAt)} · último: ${c.decidedBy}`)).join(''),'done');
+    html+=lane('Rejeitados','Voltaram para quem criou',rej.length,recent(rej,'decidedAt').map(c=>card(c,'rej',`${areaName(c.decidedArea)} · ${c.decidedBy}: ${c.reason}`)).join(''),'rej');
+    $('board').innerHTML=html}
+  $('board').addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(b)openCheck(b.dataset.open)});
 
-  // ===== Atualizações vindas da base (todas as telas abertas recebem ao vivo) =====
+  // ===== Resultados =====
+  function renderResults(){if(!isGerente())return;
+    $('resTitle').textContent=isMaster()?'Resultados da conferência · todas as áreas':`Resultados da conferência · ${areaName(session.area)}`;
+    const rows=[];checksDB.forEach(c=>c.history.forEach(h=>{if(isMaster()||h.area===session.area)rows.push({c,h})}));
+    rows.sort((a,b)=>String(b.h.at).localeCompare(String(a.h.at)));
+    $('resEmpty').hidden=rows.length>0;const per={};
+    $('resRows').innerHTML=rows.map(({c,h})=>{const diffs=F.compare(c.nf,c.rec);const p=per[h.by]||(per[h.by]={ok:0,total:0,area:h.area});p.total++;if(h.hit)p.ok++;
+      return `<tr><td>${fmtWhen(h.at)}</td><td><b>${esc(c.orderNo)}</b></td><td>${esc(F.stageLabel(c.stages[h.stageIdx]))}</td><td>${esc(h.by)}</td><td>${h.decision==='done'?'Aprovou':'Rejeitou'}</td><td>${diffs.length?`Sim · ${esc(c.tamper||diffs[0])}`:'Não'}</td><td class="${h.hit?'ok-t':'bad-t'}">${h.hit?'✓ Correta':'✕ Incorreta'}</td><td class="reason">${esc(h.reason)||'—'}</td></tr>`}).join('');
+    $('people').innerHTML=Object.entries(per).sort((a,b)=>b[1].total-a[1].total).map(([n,p])=>`<div class="person"><b>${esc(n)}</b><span>${esc(areaName(p.area))}</span><br><span class="rate">${p.ok}/${p.total}</span> <span>corretas</span></div>`).join('')}
+
+  // ===== Atualizações vindas da base =====
   function onOrders(list){ordersDB=list;ordersReady=true;
-    if(isAdmin()){if(!form)newDraft();else if(!dirty&&ordersDB.some(o=>o.no===curNo)){const o=ordersDB.find(x=>x.no===curNo);const same=JSON.stringify(o.header)===JSON.stringify(form.header)&&JSON.stringify(o.items)===JSON.stringify(form.items);if(!same)loadOrder(curNo);else renderSide()}else renderSide()}}
-  function onChecks(list){const first=!checksReady;checksReady=true;checksDB=list;
-    if(!first&&session){for(const c of list){const before=prevStatus.get(c.id);
-      if(before===undefined&&c.status==='pending'&&!seenChecks.has(c.id)&&!isAdmin())notify('','Novo pedido para conferência',`${c.orderNo} · ${c.rec.supplier} · ${totalsText(c.rec.items)}`,()=>openCheck(c.id));
-      if(before==='pending'&&c.status!=='pending'&&isAdmin()){const rej=c.status==='adjust';notify(rej?'rej':'ok',rej?`Pedido ${c.orderNo} rejeitado`:`Pedido ${c.orderNo} aprovado`,rej?`${c.decidedBy}: ${c.reason}`:`Aprovado por ${c.decidedBy} e enviado ao fornecedor`,()=>{showView('viewBuyer');seenMsgs.add(c.id);lsSet('mt-seen-msgs',[...seenMsgs]);switchOrder(c.orderNo);renderSide()})}}}
-    list.forEach(c=>prevStatus.set(c.id,c.status));
+    if(isGerente()){if(!form)newDraft();else if(!dirty&&ordersDB.some(o=>o.no===curNo)){const o=ordersDB.find(x=>x.no===curNo);const same=JSON.stringify(o.header)===JSON.stringify(form.header)&&JSON.stringify(o.items)===JSON.stringify(form.items);if(!same)loadOrder(curNo);else renderSide()}else renderSide()}}
+  function onChecks(list){const first=!checksReady;checksReady=true;checksDB=list.filter(c=>Array.isArray(c.stages)&&Array.isArray(c.history)&&c.nf&&c.rec);
+    if(!first&&session){const mine=new Set(ordersDB.filter(ownsOrder).map(o=>o.no));
+      for(const c of checksDB){const before=prevState.get(c.id),now=`${c.status}:${c.stageIdx}`;if(before===now)continue;
+        if(isCollab()&&actionable(c))notify('','Pedido para você conferir',`${c.orderNo} · ${c.rec.supplier} · ${F.stageLabel(curStage(c))}`,()=>openCheck(c.id));
+        else if(isManager()&&c.status==='pending'&&curStage(c).area===session.area)notify('',`Pedido chegou em ${areaName(session.area)}`,`${c.orderNo} · aguardando ${F.waitingFor(curStage(c))}`,()=>openCheck(c.id));
+        if(isGerente()&&c.status!=='pending'&&before&&before.startsWith('pending')&&mine.has(c.orderNo)){const rej=c.status==='adjust';
+          notify(rej?'rej':'ok',rej?`Pedido ${c.orderNo} rejeitado`:`Pedido ${c.orderNo} concluído`,rej?`${c.decidedBy} (${areaName(c.decidedArea)}): ${c.reason}`:`Aprovado em todas as etapas · último: ${c.decidedBy}`,()=>{showView('viewBuyer');markSeen(seenMsgs,'msgs',c.id);switchOrder(c.orderNo);renderSide()})}}}
+    checksDB.forEach(c=>prevState.set(c.id,`${c.status}:${c.stageIdx}`));
     renderAll()}
-  function renderAll(){if(!session)return;renderInbox();if(openId)renderCheck();if(isAdmin()){renderStatus();renderSide();renderResults()}}
+  function renderAll(){if(!session)return;renderInbox();if(openId)renderCheck();if(isGerente()){renderStatus();renderSide();renderResults()}renderFlow()}
   function onDbError(e){console.error(e);setConn('off','Conexão com a base perdida · recarregue a página')}
+  setInterval(()=>{if(session&&!document.hidden){if(isMaster())renderFlow();if(openId)renderCheck()}},60000); // atualiza os "há X min"
 
   // ===== Início =====
   let savedSession=null;try{savedSession=JSON.parse(sessionStorage.getItem('mt-session'))}catch{}
   (async()=>{
-    if(window.MT_API){store=apiStore(window.MT_API);store.setToken(savedSession?.token);setConn('','Conectando ao servidor…')}
+    if(window.MT_API){store=apiStore(window.MT_API);setConn('','Conectando ao servidor…')}
     else{let db=null;try{db=window.claude?.use?await window.claude.use('db'):null}catch{db=null}
-      if(db){store=dbStore(db);setConn('on','Base compartilhada conectada')}
-      else{store=localStore();setConn('off','Modo local: os dados não são compartilhados')}}
+      if(db){store=clientStore(dbRaw(db));setConn('on','Base compartilhada conectada')}
+      else{store=clientStore(localRaw());setConn('off','Modo local: os dados não são compartilhados')}}
+    store.setToken(savedSession?.token);
     store.watch('orders',onOrders,onDbError);store.watch('checks',onChecks,onDbError);
   })();
-  if(savedSession&&(savedSession.role==='admin'||savedSession.role==='checker')&&savedSession.name)startSession(savedSession);else showLogin();
+  if(savedSession&&['master','manager','collab'].includes(savedSession.role)&&savedSession.name)startSession(savedSession);else showLogin();
 </script>

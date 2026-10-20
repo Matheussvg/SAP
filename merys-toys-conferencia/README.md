@@ -1,15 +1,48 @@
-# Mery's Toys · Conferência de pedidos
+# Mery's Toys · Pedidos e conferência por área
 
-Simulação da ME22N com conferência de NF. Os administradores criam e enviam os pedidos; os conferentes entram só com o nome e aprovam ou rejeitam.
+Simulação da ME22N com conferência de NF passando pelas áreas da empresa.
+
+## Quem entra e o que vê
+
+| Quem | Como entra | O que vê |
+|---|---|---|
+| Gerente master: Matheus Fortunato, Eduarda Tomaz, Pedro Zanella | usuário `adm` + senha + escolhe o nome | Fluxo de áreas, todas as conferências, ME22N, resultados de todos |
+| Gerente de área | `adm_ti`, `adm_producao`, `adm_pcp`, `adm_comunicacao`, `adm_logistica` + senha | Pedidos parados na área, ME22N para criar pedidos, resultados da área |
+| Colaborador | escolhe a área e digita o nome (precisa estar na equipe da área) | Só os pedidos que estão na etapa dele, para aprovar ou rejeitar |
+
+Os gerentes não aprovam. Só os colaboradores da área aprovam ou rejeitam.
+
+## Fluxo
+
+TI → Produção → PCP → Comunicação → Logística
+
+- **TI:** aprovam Pietro ou Matheus Galdino.
+- **Produção, PCP e Comunicação:** aprova qualquer colaborador da área.
+- **Logística:** quatro etapas, nesta ordem: Jônatas → João → Rafael → Flávia.
+- **Quem criou o pedido define o início:**
+  - pedido de gerente master começa na TI;
+  - pedido de gerente de área começa na área dele e segue as áreas seguintes.
+- **Rejeição:** o pedido volta para quem criou, com o motivo e o nome de quem rejeitou. Quando reenviado, recomeça do início do trajeto.
+- **Divergência proposital:** a cada 2 envios, a NF chega com uma diferença em relação ao pedido.
+
+Equipes, aprovadores e ordem das áreas ficam em `public/flow.js`. Para mudar, altere só esse arquivo.
+
+## Senhas (variáveis de ambiente no Render)
+
+| Variável | Para quê | Padrão |
+|---|---|---|
+| `ADMIN_PASS` | senha do `adm` (gerentes master) | `adm` |
+| `MANAGER_PASS` | senha de todos os `adm_área` | `adm` |
+| `PASS_ADM_TI`, `PASS_ADM_PRODUCAO`, `PASS_ADM_PCP`, `PASS_ADM_COMUNICACAO`, `PASS_ADM_LOGISTICA` | senha própria de cada área (substitui a `MANAGER_PASS`) | — |
+| `SESSION_SECRET` | assina as sessões; qualquer texto longo | gerado pelo Render |
+| `DATABASE_URL` | Internal Database URL do Postgres | — |
 
 ## Publicar no Render
 
-1. Suba esta pasta para um repositório no GitHub.
-2. No Render, clique em **New → Blueprint** e escolha o repositório. O `render.yaml` cria:
-   - o serviço web `merys-toys-conferencia`;
-   - o banco Postgres `merys-toys-db`.
-3. O Render pede o valor de **ADMIN_PASS**: é a senha dos administradores. O usuário é `adm`; para mudar, altere `ADMIN_USER`.
-4. Quando o deploy terminar, passe o endereço `https://merys-toys-conferencia.onrender.com` (ou o que o Render mostrar) para a equipe.
+1. Envie a pasta para o GitHub.
+2. Se o projeto estiver numa subpasta do repositório, preencha **Settings → Root Directory** com o nome da pasta.
+3. Confira as variáveis acima no **Environment** e faça o deploy.
+4. O deploy deu certo se o log terminar com `rodando na porta … (Postgres)`.
 
 ## Rodar no computador
 
@@ -18,14 +51,4 @@ npm install
 npm start
 ```
 
-Abra http://localhost:3000. Sem `DATABASE_URL`, os dados ficam no arquivo `data.json`.
-
-## Bom saber
-
-- **Plano gratuito do Render:** o serviço "dorme" depois de cerca de 15 minutos sem uso. A primeira pessoa que abrir depois espera uns 50 segundos.
-- **Banco gratuito do Render:** ele expira depois de um prazo. Confira a data no painel e passe para um plano pago se for usar por mais tempo.
-- **Segurança:**
-  - A senha de admin é conferida no servidor.
-  - Qualquer pessoa com o link pode entrar como conferente.
-  - Não coloque dados reais de clientes ou fornecedores.
-- **Página:** `public/index.html` é a mesma página publicada no claude.ai. Ao alterar uma, copie para a outra.
+Abra http://localhost:3000. Sem `DATABASE_URL`, os dados ficam em `data.json`.
