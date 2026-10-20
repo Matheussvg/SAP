@@ -1,0 +1,16 @@
+{
+  "name": "merys-toys-conferencia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simulação ME22N + conferência de pedidos da Mery's Toys",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "pg": "8.11.3"
+  }
+}
