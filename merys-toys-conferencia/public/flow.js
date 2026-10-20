@@ -10,8 +10,8 @@
       name: 'TI', login: 'adm_ti',
       manager: { name: 'Matheus Fortunato', role: 'Gerente de TI' },
       members: [
+        { name: 'Matheus Fortunato', role: 'Gerente de TI' },
         { name: 'Pietro Macedo dos Santos', role: 'Design' },
-        { name: 'Matheus Galdino', role: 'Planejamento e PCP' },
         { name: 'Pedro Zanella', role: 'Modelagem 3D' },
         { name: 'Eduarda Tomaz', role: 'Desenvolvimento de Software' },
       ],
@@ -65,7 +65,7 @@
   // Quem aprova em cada área. Área fora desta lista: qualquer colaborador dela (menos os gerentes master).
   // Área com várias etapas: cada etapa só com a pessoa indicada, na ordem.
   const STAGE_RULES = {
-    ti: [{ approvers: ['Pietro Macedo dos Santos', 'Matheus Galdino'] }],
+    ti: [{ approvers: ['Matheus Fortunato', 'Eduarda Tomaz', 'Pedro Zanella', 'Pietro Macedo dos Santos'] }],
     logistica: [
       { approvers: ['Jônatas Rafael'] },
       { approvers: ['João Pedro da Silva'] },

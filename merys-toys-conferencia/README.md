@@ -10,13 +10,13 @@ Simulação da ME22N com conferência de NF passando pelas áreas da empresa.
 | Gerente de área | `adm_ti`, `adm_producao`, `adm_pcp`, `adm_comunicacao`, `adm_logistica` + senha | Pedidos parados na área, ME22N para criar pedidos, resultados da área |
 | Colaborador | escolhe a área e digita o nome (precisa estar na equipe da área) | Só os pedidos que estão na etapa dele, para aprovar ou rejeitar |
 
-Os gerentes não aprovam. Só os colaboradores da área aprovam ou rejeitam.
+Pelo login de gerente ninguém aprova. Quem aprova entra como colaborador da área. Na TI, os gerentes master também aprovam: basta entrar como colaborador da TI.
 
 ## Fluxo
 
 TI → Produção → PCP → Comunicação → Logística
 
-- **TI:** aprovam Pietro ou Matheus Galdino.
+- **TI:** aprovam Matheus Fortunato, Eduarda, Pedro Zanella ou Pietro. Para aprovar, eles entram como colaborador da TI.
 - **Produção, PCP e Comunicação:** aprova qualquer colaborador da área.
 - **Logística:** quatro etapas, nesta ordem: Jônatas → João → Rafael → Flávia.
 - **Quem criou o pedido define o início:**
