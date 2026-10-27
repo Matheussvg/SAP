@@ -1,3 +1,4 @@
+<!doctype html>
 <title>Mery’s Toys Conferência de Pedidos</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap">
 <style>
@@ -92,8 +93,6 @@
   .side>*{flex:none}
   .side-head{display:flex;align-items:center;gap:8px;margin:4px 2px 0}
   .side-head h2{margin:0;font:700 12px var(--display);text-transform:uppercase;letter-spacing:1px;color:var(--gold2)}
-  .side .empty{padding:12px;background:var(--paper);border:1px dashed var(--line);border-radius:8px;font-size:12px;text-align:left}
-  .side .empty b{font-size:13px}
   .msgs{display:flex;flex-direction:column;gap:8px}
   .mcard{background:var(--paper);border:1px solid var(--line2);border-left:4px solid var(--ok);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;line-height:1.45}
   .mcard.rej{border-left-color:var(--red)}
@@ -253,8 +252,8 @@
   .inbox li button{width:100%;text-align:left;border:0;border-bottom:1px solid var(--line2);background:var(--paper);padding:12px 16px;display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:3px 10px;align-items:start}
   .inbox li button:hover{background:#fbfaf3}
   .inbox li button.open{background:var(--mint)}
-  .unread{width:8px;height:8px;border-radius:50%;background:var(--red);margin-top:6px}
-  .unread.seen{background:transparent}
+  .inbox .unread{width:8px;height:8px;border-radius:50%;background:var(--red);margin-top:6px}
+  .inbox .unread.seen{background:transparent}
   .inbox .t{font-weight:700;color:#20352d}
   .inbox .s{grid-column:2/4;color:var(--muted);font-size:12px}
   .inbox .time{color:var(--muted);font-size:11.5px}
@@ -315,6 +314,13 @@
 
   /* ===== Resultados ===== */
   .results{overflow:auto;padding:16px}
+
+  /* ===== Mensagens ===== */
+  .msgsv{overflow:auto;padding:16px}
+  .msgsv h2{margin:0 0 4px;font:800 18px var(--display);color:#20352d}
+  .msgsv .lead{margin:0 0 14px;max-width:760px}
+  .msgsv .msgs{max-width:760px}
+  .msgsv .empty{max-width:760px;padding:16px 18px;background:var(--paper);border:1px dashed var(--line);border-radius:10px;text-align:left}
   .results h2{margin:0 0 4px;font:800 18px var(--display);color:#20352d}
   .results .lead{margin:0 0 14px}
   .people{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
@@ -354,8 +360,8 @@
 
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   @media(max-width:1000px){
-    .split{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr)}
-    .side{max-height:38vh;border-right:0;border-bottom:1px solid var(--line)}
+    .split{grid-template-columns:1fr}
+    .side{display:none} /* os pedidos continuam no seletor ao lado do fornecedor */
     .compare{grid-template-columns:1fr}
   }
   @media(max-width:760px){
@@ -390,6 +396,7 @@
   <symbol id="i-cart" viewBox="0 0 16 16"><path d="M1.5 2.5h2l1.6 7.5h7.4l1.5-5.5H4.3M6 13.5h.01M12 13.5h.01"/></symbol>
   <symbol id="i-chart" viewBox="0 0 16 16"><path d="M2.5 13.5h11M4.5 11V7.5M8 11V4M11.5 11V9"/></symbol>
   <symbol id="i-flow" viewBox="0 0 16 16"><path d="M1.5 3.5h4v3h-4zM10.5 3.5h4v3h-4zM6 9.5h4v3H6zM5.5 5h5M12.5 6.5V8H8v1.5"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 16 16"><path d="M2 3.5h12v9H2zM2.5 4l5.5 4.5L13.5 4"/></symbol>
   <symbol id="i-out" viewBox="0 0 16 16"><path d="M6.5 2.5h-4v11h4M10 5l3 3-3 3M13 8H6"/></symbol>
 </svg>
 
@@ -465,10 +472,7 @@
       <button class="btn primary" id="submit"><svg class="ico"><use href="#i-send"/></svg>Enviar pedido</button>
     </div>
     <div class="split">
-      <aside class="side" aria-label="Caixa de mensagens e pedidos">
-        <div class="side-head"><h2>Caixa de mensagens</h2><span class="badge" id="msgBadge" hidden>0</span></div>
-        <div class="msgs" id="msgList"></div>
-        <div class="empty" id="msgEmpty"><b>Nenhuma mensagem</b>Quando um pedido seu for concluído ou rejeitado em alguma área, o retorno chega aqui com o nome de quem decidiu e o motivo.</div>
+      <aside class="side" aria-label="Pedidos">
         <div class="side-head"><h2 id="ordersTitle">Pedidos</h2></div>
         <ul class="mylist" id="myOrders"></ul>
       </aside>
@@ -558,6 +562,14 @@
       </div>
     </div>
     <footer class="statusbar"><div class="msg"><i class="mi">i</i><span></span></div></footer>
+  </section>
+
+  <!-- ===== Mensagens (gerentes) ===== -->
+  <section class="view msgsv" id="viewMsgs" hidden>
+    <h2>Caixa de mensagens</h2>
+    <p class="lead">Retorno dos seus pedidos: quando um pedido é concluído ou rejeitado em alguma área, chega aqui com o nome de quem decidiu e o motivo.</p>
+    <div class="msgs" id="msgList"></div>
+    <div class="empty" id="msgEmpty"><b>Nenhuma mensagem</b>Ainda não há pedidos seus concluídos ou rejeitados.</div>
   </section>
 
   <!-- ===== Resultados ===== -->
@@ -693,8 +705,8 @@
     session=null;form=null;draft=null;curNo=null;openId=null;store?.setToken?.(null);try{sessionStorage.removeItem('mt-session')}catch{}showLogin()});
   function showLogin(){document.querySelectorAll('.view').forEach(v=>v.hidden=v.id!=='viewLogin');$('topbar').hidden=true;$('notif').hidden=true;$('admPass').value=''}
 
-  const TABS={master:[['viewFlow','Fluxo de áreas','i-flow'],['viewCheck','Conferências','i-bell'],['viewBuyer','ME22N · Pedidos','i-cart'],['viewResults','Resultados','i-chart']],
-    manager:[['viewCheck','Minha área','i-bell'],['viewBuyer','ME22N · Pedidos','i-cart'],['viewResults','Resultados','i-chart']],
+  const TABS={master:[['viewFlow','Fluxo de áreas','i-flow'],['viewCheck','Conferências','i-bell'],['viewBuyer','ME22N · Pedidos','i-cart'],['viewMsgs','Mensagens','i-mail'],['viewResults','Resultados','i-chart']],
+    manager:[['viewCheck','Minha área','i-bell'],['viewBuyer','ME22N · Pedidos','i-cart'],['viewMsgs','Mensagens','i-mail'],['viewResults','Resultados','i-chart']],
     collab:[['viewCheck','Conferência','i-bell']]};
   function startSession(s){session=s;try{sessionStorage.setItem('mt-session',JSON.stringify(s))}catch{}store?.setToken?.(s.token);
     seenChecks=new Set(lsGet(seenKey('checks'),[]));seenMsgs=new Set(lsGet(seenKey('msgs'),[]));
@@ -793,12 +805,12 @@
     $('msgList').innerHTML=msgs.slice(0,30).map(c=>c.status==='adjust'
       ?`<div class="mcard rej ${seenMsgs.has(c.id)?'':'unread'}"><div class="mc-top"><b>Pedido ${esc(c.orderNo)} rejeitado</b><span>${fmtWhen(c.decidedAt)}</span></div><div class="mc-reason"><em>Motivo da rejeição</em>${esc(c.reason)}</div><div class="mc-meta">Rejeitado por <b>${esc(c.decidedBy)}</b> em ${esc(F.stageLabel(c.stages[c.stageIdx]))} · ${itemsTxt(c.rec.items)} · ${totalsText(c.rec.items)}</div><button class="btn danger" data-msg="${c.id}"><svg class="ico"><use href="#i-doc"/></svg>Abrir pedido para ajustar</button></div>`
       :`<div class="mcard ${seenMsgs.has(c.id)?'':'unread'}"><div class="mc-top"><b>Pedido ${esc(c.orderNo)} concluído</b><span>${fmtWhen(c.decidedAt)}</span></div><div class="mc-meta">Aprovado em todas as etapas · última aprovação: <b>${esc(c.decidedBy)}</b> (${esc(areaName(c.decidedArea))}) · ${totalsText(c.rec.items)}</div><button class="btn" data-msg="${c.id}"><svg class="ico"><use href="#i-doc"/></svg>Ver pedido</button></div>`).join('');
-    const unread=msgs.filter(c=>!seenMsgs.has(c.id)).length;$('msgBadge').textContent=unread;$('msgBadge').hidden=!unread;setBadge('viewBuyer',unread)}
+    setBadge('viewMsgs',msgs.filter(c=>!seenMsgs.has(c.id)).length)}
   function switchOrder(no){if(no===curNo)return true;if(dirty){toast('Salve ou descarte as alterações antes de trocar de pedido.','error');$('orderNumber').value=curNo;return false}loadOrder(no);return true}
   $('orderNumber').addEventListener('change',e=>switchOrder(e.target.value));
   $('myOrders').addEventListener('click',e=>{const b=e.target.closest('[data-order]');if(b)switchOrder(b.dataset.order)});
   $('msgList').addEventListener('click',e=>{const b=e.target.closest('[data-msg]');if(!b)return;const c=checksDB.find(x=>x.id===b.dataset.msg);if(!c)return;
-    markSeen(seenMsgs,'msgs',c.id);if(switchOrder(c.orderNo)&&c.status==='adjust')toast(`Pedido ${c.orderNo} rejeitado por ${c.decidedBy}: ${c.reason}`,'error');renderSide()});
+    markSeen(seenMsgs,'msgs',c.id);showView('viewBuyer');if(switchOrder(c.orderNo)&&c.status==='adjust')toast(`Pedido ${c.orderNo} rejeitado por ${c.decidedBy}: ${c.reason}`,'error');renderSide()});
 
   document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>activateTab(t.dataset.tab)));
   function activateTab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===id));document.querySelectorAll('#secHeader .panel').forEach(p=>p.hidden=p.id!==id);$('secHeader').classList.remove('closed');syncCollapse()}
