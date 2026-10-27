@@ -59,6 +59,9 @@
   // Gerentes master: criam pedidos que começam no início do fluxo e enxergam todas as áreas
   const MASTERS = ['Matheus Fortunato', 'Eduarda Tomaz', 'Pedro Zanella'];
 
+  // Dono do sistema: só ele vê a aba "Limpar histórico" e só ele pode zerar todos os pedidos
+  const OWNER = 'Matheus Fortunato';
+
   // Ordem das áreas
   const FLOW = ['ti', 'producao', 'pcp', 'comunicacao', 'logistica'];
 
@@ -153,5 +156,5 @@
     return next;
   }
 
-  return { AREAS, MASTERS, FLOW, STAGE_RULES, plain, matchMember, buildStages, startAreaFor, canApprove, stageLabel, waitingFor, compare, decide };
+  return { AREAS, MASTERS, OWNER, FLOW, STAGE_RULES, plain, matchMember, buildStages, startAreaFor, canApprove, stageLabel, waitingFor, compare, decide };
 });

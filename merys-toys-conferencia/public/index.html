@@ -315,6 +315,18 @@
   /* ===== Resultados ===== */
   .results{overflow:auto;padding:16px}
 
+  /* ===== Limpar histórico (só o dono do sistema) ===== */
+  .adminv{overflow:auto;padding:16px}
+  .adminv h2{margin:0 0 4px;font:800 18px var(--display);color:#20352d}
+  .adminv .lead{margin:0 0 14px;max-width:640px}
+  .danger-box{max-width:640px;background:var(--paper);border:1px solid #f0d9d6;border-left:4px solid var(--red);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+  .danger-box label{display:flex;flex-direction:column;gap:5px;font-weight:600;color:#4f5e57}
+  .danger-box input{height:38px;max-width:320px;border:1px solid #c8d2cb;border-radius:8px;padding:0 12px;outline:0;background:var(--paper);font-size:14px}
+  .danger-box input:focus{border-color:#c76960;box-shadow:0 0 0 3px #c7696022}
+  .danger-box .btn{align-self:flex-start}
+  .danger-box .err{margin:0;color:var(--red);font-size:12.5px}
+  .danger-box .ok{margin:0;color:var(--ok);font-weight:700}
+
   /* ===== Mensagens ===== */
   .msgsv{overflow:auto;padding:16px}
   .msgsv h2{margin:0 0 4px;font:800 18px var(--display);color:#20352d}
@@ -581,6 +593,20 @@
     <div class="empty" id="resEmpty"><b>Nenhuma decisão ainda</b>As aprovações e rejeições dos colaboradores aparecem aqui.</div>
   </section>
 
+  <!-- ===== Limpar histórico (só o dono do sistema) ===== -->
+  <section class="view adminv" id="viewAdmin" hidden>
+    <h2>Limpar histórico</h2>
+    <p class="lead">Apaga <b>todos os pedidos</b> da ME22N e <b>todas as conferências</b>, de todas as áreas e para todo mundo que usa o SAP. A numeração volta para OC-2026-0048. Não dá para desfazer.</p>
+    <div class="danger-box">
+      <div class="kpis"><div class="kpi"><b id="admOrders">0</b><span>pedidos</span></div><div class="kpi"><b id="admChecks">0</b><span>conferências</span></div></div>
+      <label>Senha de confirmação<input id="resetPass" type="password" autocomplete="off" placeholder="a mesma do login de gerente master"></label>
+      <label>Digite LIMPAR para confirmar<input id="resetWord" autocomplete="off" placeholder="LIMPAR"></label>
+      <p class="err" id="resetErr" hidden></p>
+      <p class="ok" id="resetOk" hidden>Histórico limpo: todos os pedidos e conferências foram apagados.</p>
+      <button class="btn solid-red big" id="resetBtn"><svg class="ico"><use href="#i-trash"/></svg>Limpar histórico</button>
+    </div>
+  </section>
+
   <dialog id="sendDialog">
     <div class="dlg-title">Enviar pedido <span>✦</span></div>
     <div class="dlg-body"><p><b>Enviar o pedido <span id="sendOrder"></span> para conferência?</b><br><span id="sendPath"></span></p></div>
@@ -637,6 +663,7 @@
 
   // ===== Sessão =====
   let session=null;
+  const isOwner=()=>session?.role==='master'&&session.name===F.OWNER;
   const isMaster=()=>session?.role==='master',isManager=()=>session?.role==='manager',isCollab=()=>session?.role==='collab',isGerente=()=>isMaster()||isManager();
   const me=()=>({role:session.role,area:session.area||null,name:session.name});
 
@@ -655,7 +682,8 @@
       async getOrder(no){return(await req('GET',`/doc/orders/${encodeURIComponent(no)}`)).data||null},
       async sendCheck(id,data){await req('POST',`/checks/${encodeURIComponent(id)}`,{data});poll()},
       async decide(id,p){const j=await req('POST',`/checks/${encodeURIComponent(id)}/decide`,p);poll();return{ok:j.status===200&&!!j.ok,current:j.current||null}},
-      async login(user,pass,name){try{const j=await req('POST','/login',{user,pass,name});return j}catch(e){if(e.status===401)return null;throw e}}}}
+      async login(user,pass,name){try{const j=await req('POST','/login',{user,pass,name});return j}catch(e){if(e.status===401)return null;throw e}},
+      async reset(pass){await req('POST','/reset',{pass});rev='';poll()}}}
   // sem servidor: as mesmas regras rodam na própria página
   function clientStore(raw){return{kind:raw.kind,setToken(){},watch:raw.watch,
     async saveOrder(no,data){const ex=await raw.get('orders',no);await raw.put('orders',no,{...data,createdBy:ex?.createdBy||me(),updatedAt:nowISO()})},
@@ -668,13 +696,16 @@
       const next=F.decide(c,{decision:p.decision,name:p.name,reason:p.reason,at:nowISO()});await raw.put('checks',id,next);return{ok:true,current:next}},
     async login(user,pass,name){const u=user.trim().toLowerCase();if(pass!==LOCAL_PASS)return null;
       if(u==='adm')return MASTERS.includes(name)?{session:{role:'master',name,area:null}}:null;
-      const area=Object.keys(AREAS).find(k=>AREAS[k].login===u);return area?{session:{role:'manager',area,name:AREAS[area].manager.name}}:null}}}
+      const area=Object.keys(AREAS).find(k=>AREAS[k].login===u);return area?{session:{role:'manager',area,name:AREAS[area].manager.name}}:null},
+    async reset(pass){const fail=(m,status)=>{const e=new Error(m);e.status=status;throw e};if(pass!==LOCAL_PASS)fail('Senha incorreta',403);
+      if(!raw.clear)fail('Limpar o histórico só funciona com o servidor',400);await raw.clear()}}}
   function dbRaw(db){return{kind:'db',watch:(c,cb,err)=>db.collection(c).onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),err),
     put:(c,id,v)=>db.doc(`${c}/${id}`).set(JSON.parse(JSON.stringify(v))),async get(c,id){const s=await db.doc(`${c}/${id}`).get();return s.exists?clone(s.data()):null},
     async lock(c,id,holder){try{await db.doc(`${c}/${id}`).acquire({holder,ttlMs:8000})}catch{}}}}
   function localRaw(){const data={orders:new Map(),checks:new Map()},subs={orders:[],checks:[]};
     const emit=c=>subs[c].forEach(f=>f([...data[c].entries()].map(([id,v])=>({id,...clone(v)}))));
-    return{kind:'local',watch(c,cb){subs[c].push(cb);setTimeout(()=>emit(c))},async put(c,id,v){data[c].set(id,clone(v));emit(c)},async get(c,id){const v=data[c].get(id);return v?clone(v):null},async lock(){}}}
+    return{kind:'local',watch(c,cb){subs[c].push(cb);setTimeout(()=>emit(c))},async put(c,id,v){data[c].set(id,clone(v));emit(c)},async get(c,id){const v=data[c].get(id);return v?clone(v):null},async lock(){},
+      async clear(){data.orders.clear();data.checks.clear();emit('orders');emit('checks')}}}
   let store=null;
   async function safe(fn){try{return await fn()}catch(e){console.error(e);const c=e&&e.code;
     toast(c==='invalid_argument'?'Sem permissão para gravar nesta página.':c==='unauthorized'?'Sessão expirada. Saia e entre de novo.':e?.message&&c!=='unavailable'?e.message:`Não foi possível gravar (${c||'erro'}). Tente de novo.`,'error');throw e}}
@@ -710,7 +741,7 @@
     collab:[['viewCheck','Conferência','i-bell']]};
   function startSession(s){session=s;try{sessionStorage.setItem('mt-session',JSON.stringify(s))}catch{}store?.setToken?.(s.token);
     seenChecks=new Set(lsGet(seenKey('checks'),[]));seenMsgs=new Set(lsGet(seenKey('msgs'),[]));
-    $('tabs').innerHTML=TABS[s.role].map(([v,l,i])=>`<button class="sw" data-view="${v}"><svg class="ico"><use href="#${i}"/></svg>${l} <span class="badge" data-badge="${v}" hidden>0</span></button>`).join('');
+    $('tabs').innerHTML=TABS[s.role].concat(isOwner()?[['viewAdmin','Limpar histórico','i-trash']]:[]).map(([v,l,i])=>`<button class="sw" data-view="${v}"><svg class="ico"><use href="#${i}"/></svg>${l} <span class="badge" data-badge="${v}" hidden>0</span></button>`).join('');
     $('whoRole').textContent=isMaster()?'Gerente master':isManager()?`Gerente · ${areaName(s.area)}`:areaName(s.area);$('whoName').textContent=s.name;
     $('ckTitle').textContent=isCollab()?'Pedidos para conferir':isManager()?`Área ${areaName(s.area)}`:'Todas as conferências';
     $('ckWho').textContent=isCollab()?`${s.name} · ${areaName(s.area)}`:isManager()?'Acompanhe os pedidos da sua área. Quem aprova são os colaboradores.':'Visão dos gerentes master · somente leitura';
@@ -960,6 +991,20 @@
       return `<tr><td>${fmtWhen(h.at)}</td><td><b>${esc(c.orderNo)}</b></td><td>${esc(F.stageLabel(c.stages[h.stageIdx]))}</td><td>${esc(h.by)}</td><td>${h.decision==='done'?'Aprovou':'Rejeitou'}</td><td>${diffs.length?`Sim · ${esc(c.tamper||diffs[0])}`:'Não'}</td><td class="${h.hit?'ok-t':'bad-t'}">${h.hit?'✓ Correta':'✕ Incorreta'}</td><td class="reason">${esc(h.reason)||'—'}</td></tr>`}).join('');
     $('people').innerHTML=Object.entries(per).sort((a,b)=>b[1].total-a[1].total).map(([n,p])=>`<div class="person"><b>${esc(n)}</b><span>${esc(areaName(p.area))}</span><br><span class="rate">${p.ok}/${p.total}</span> <span>corretas</span></div>`).join('')}
 
+  // ===== Limpar histórico (só o dono do sistema; o servidor confere de novo) =====
+  function renderAdmin(){if(!isOwner())return;$('admOrders').textContent=ordersDB.length;$('admChecks').textContent=checksDB.length}
+  $('resetBtn').addEventListener('click',async()=>{if(!isOwner())return;
+    const fail=m=>{$('resetErr').textContent=m;$('resetErr').hidden=false;$('resetOk').hidden=true};
+    if($('resetWord').value.trim().toUpperCase()!=='LIMPAR'){fail('Digite LIMPAR para confirmar.');return}
+    if(!$('resetPass').value){fail('Informe a senha de confirmação.');return}
+    $('resetBtn').disabled=true;
+    try{await store.reset($('resetPass').value);
+      $('resetPass').value='';$('resetWord').value='';$('resetErr').hidden=true;$('resetOk').hidden=false;
+      // a base está vazia: começa um pedido novo (OC-2026-0048) sem esperar a próxima consulta
+      ordersDB=[];checksDB=[];draft=null;form=null;curNo=null;dirty=false;openId=null;prevState.clear();newDraft();renderAll()}
+    catch(e){fail(e.status===403||e.status===400?e.message:'Não foi possível limpar agora. Tente de novo.')}
+    finally{$('resetBtn').disabled=false}});
+
   // ===== Atualizações vindas da base =====
   function onOrders(list){ordersDB=list;ordersReady=true;
     if(isGerente()){if(!form)newDraft();else if(!dirty&&ordersDB.some(o=>o.no===curNo)){const o=ordersDB.find(x=>x.no===curNo);const same=JSON.stringify(o.header)===JSON.stringify(form.header)&&JSON.stringify(o.items)===JSON.stringify(form.items);if(!same)loadOrder(curNo);else renderSide()}else renderSide()}}
@@ -972,7 +1017,7 @@
           notify(rej?'rej':'ok',rej?`Pedido ${c.orderNo} rejeitado`:`Pedido ${c.orderNo} concluído`,rej?`${c.decidedBy} (${areaName(c.decidedArea)}): ${c.reason}`:`Aprovado em todas as etapas · último: ${c.decidedBy}`,()=>{showView('viewBuyer');markSeen(seenMsgs,'msgs',c.id);switchOrder(c.orderNo);renderSide()})}}}
     checksDB.forEach(c=>prevState.set(c.id,`${c.status}:${c.stageIdx}`));
     renderAll()}
-  function renderAll(){if(!session)return;renderInbox();if(openId)renderCheck();if(isGerente()){renderStatus();renderSide();renderResults()}renderFlow()}
+  function renderAll(){if(!session)return;renderInbox();if(openId)renderCheck();if(isGerente()){renderStatus();renderSide();renderResults()}renderFlow();renderAdmin()}
   function onDbError(e){console.error(e);setConn('off','Conexão com a base perdida · recarregue a página')}
   setInterval(()=>{if(session&&!document.hidden){if(isMaster())renderFlow();if(openId)renderCheck()}},60000); // atualiza os "há X min"
 

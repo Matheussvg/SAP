@@ -10,6 +10,8 @@ const F = require('./public/flow.js');
 const PORT = Number(process.env.PORT) || 3000;
 const MASTER_USER = process.env.ADMIN_USER || 'adm';
 const MASTER_PASS = process.env.ADMIN_PASS || 'adm';
+// Senha para limpar o histórico (aba só do dono do sistema, F.OWNER). Sem RESET_PASS, vale a senha do gerente master.
+const RESET_PASS = process.env.RESET_PASS || MASTER_PASS;
 // Senha de cada gerente de área: PASS_ADM_TI, PASS_ADM_PRODUCAO, ... ou MANAGER_PASS para todos (padrão "adm")
 const managerPass = login => process.env[`PASS_${login.toUpperCase()}`] || process.env.MANAGER_PASS || 'adm';
 const SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
@@ -42,6 +44,7 @@ function pgStore(pool) {
           seq bigint not null default nextval('docs_seq'), primary key(collection, id))`);
     },
     async rev() { return (await pool.query('select coalesce(max(seq),0)::text as r from docs')).rows[0].r; },
+    async clear() { await pool.query('delete from docs'); },
     async all() { return (await pool.query('select collection, id, data from docs order by seq')).rows; },
     async get(c, id) { return (await pool.query('select data from docs where collection=$1 and id=$2', [c, id])).rows[0]?.data || null; },
     async create(c, id, data) {
@@ -73,6 +76,7 @@ function fileStore(file) {
   return {
     async init() {},
     async rev() { return String(db.seq); },
+    async clear() { db = { seq: db.seq + 1, docs: {} }; save(); },
     async all() { return Object.values(db.docs); },
     async get(c, id) { return db.docs[key(c, id)]?.data || null; },
     async create(c, id, data) { if (db.docs[key(c, id)]) return false; db.docs[key(c, id)] = { collection: c, id, data, seq: ++db.seq }; save(); return true; },
@@ -147,6 +151,17 @@ async function handle(req, res) {
       return send(res, 200, { token: makeToken(session), session });
     }
     return send(res, 401, { error: 'Usuário ou senha inválidos' });
+  }
+
+  // Dono do sistema: apaga todos os pedidos e conferências (aba "Limpar histórico")
+  if (req.method === 'POST' && a === 'reset' && !b) {
+    const who = readToken(req);
+    if (!who || who.role !== 'master' || who.name !== F.OWNER) return send(res, 403, { error: `Só ${F.OWNER} pode limpar o histórico` });
+    const { pass } = await readJson(req);
+    if (!same(pass, RESET_PASS)) return send(res, 403, { error: 'Senha incorreta' });
+    await store.clear();
+    console.log(`Histórico limpo por ${who.name}`);
+    return send(res, 200, { ok: true });
   }
 
   // Gerentes: salvar pedido

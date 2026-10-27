@@ -12,6 +12,10 @@ Simulação da ME22N com conferência de NF passando pelas áreas da empresa.
 
 Pelo login de gerente ninguém aprova. Quem aprova entra como colaborador da área. Na TI, os gerentes master também aprovam: basta entrar como colaborador da TI.
 
+## Limpar histórico
+
+Só o login de gerente master do **Matheus Fortunato** (dono do sistema, `OWNER` em `public/flow.js`) tem a aba **Limpar histórico**. Ela apaga todos os pedidos e todas as conferências, de todas as áreas, para todo mundo; a numeração volta para OC-2026-0048. Para confirmar, é preciso digitar LIMPAR e a senha (`RESET_PASS`). O servidor confere de novo quem pediu e a senha.
+
 ## Fluxo
 
 TI → Produção → PCP → Comunicação → Logística
@@ -34,6 +38,7 @@ Equipes, aprovadores e ordem das áreas ficam em `public/flow.js`. Para mudar, a
 | `ADMIN_PASS` | senha do `adm` (gerentes master) | `adm` |
 | `MANAGER_PASS` | senha de todos os `adm_área` | `adm` |
 | `PASS_ADM_TI`, `PASS_ADM_PRODUCAO`, `PASS_ADM_PCP`, `PASS_ADM_COMUNICACAO`, `PASS_ADM_LOGISTICA` | senha própria de cada área (substitui a `MANAGER_PASS`) | — |
+| `RESET_PASS` | senha para **Limpar histórico** (aba só do Matheus Fortunato). Defina uma senha só sua: sem ela, vale a do `adm`, que os outros gerentes master também sabem | — |
 | `SESSION_SECRET` | assina as sessões; qualquer texto longo | gerado pelo Render |
 | `DATABASE_URL` | Internal Database URL do Postgres | — |
 
